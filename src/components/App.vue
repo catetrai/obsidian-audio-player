@@ -410,9 +410,10 @@ export default defineComponent({
     },
     getBarHighlightMarginTop(s: number, i: number, rank: number, cmt: AudioComment, cmts: Array<AudioComment>) {
       const height = this.getBarHighlightHeight(s, i, rank, cmts);
-      if (rank == 0 && cmts.length == 1 || rank > cmts.indexOf(cmt))
+      const allRanks = cmts.map(x => x.overlapScore);
+      if (rank == 0 && cmts.length == 1 || rank > cmts.indexOf(cmt) && rank != Math.max(...allRanks))
         return -height;
-      if (rank == Math.min(...cmts.map(x => x.overlapScore)))
+      if (rank == Math.min(...allRanks))
         return -this.getBarHighlightHeight(s, i, rank, cmts.slice(0, -rank));
       return 0;
     },
