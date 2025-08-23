@@ -1,7 +1,7 @@
 {
 	"id": "music-player",
 	"name": "Music Player",
-	"version": "0.1.2",
+	"version": "0.2.0",
 	"minAppVersion": "0.15.0",
 	"description": "Audio player with background playback, bookmarks and wave visualiser (fork of github.com/noonesimg/obsidian-audio-player)",
 	"author": "catetrai",

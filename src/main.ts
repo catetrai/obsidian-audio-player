@@ -3,10 +3,12 @@ import {
 	MarkdownPostProcessorContext,
 	Notice,
 	Plugin,
+	TFile,
 } from "obsidian";
 
 import { AudioPlayerRenderer } from "./audioPlayerRenderer";
-import { secondsToString } from "./utils";
+import { lrcToCommentList, parseLrc, parseSrt, secondsToString, srtToCommentList } from "./utils";
+
 
 export default class AudioPlayer extends Plugin {
 	async onload() {
@@ -44,7 +46,7 @@ export default class AudioPlayer extends Plugin {
 				if (player.src && player.paused) {
 					const ev = new Event("allresume");
 					document.dispatchEvent(ev);
-					player.play();	
+					player.play();
 				} else {
 					const ev = new Event("allpause");
 					document.dispatchEvent(ev);
@@ -142,24 +144,81 @@ export default class AudioPlayer extends Plugin {
 				// parse moodbar image (must be embedded image link)
 				const moodbar = calloutContent.find('p > span.internal-embed') || null;
 
-				// parse comments
-				const commentsList = calloutContent.find('ul');
+				// Parse optional internal link to a vault file from which comments
+				// should be sourced.
+				// If a source is provided, any comments entered in the callout
+				// will be ignored.
+				//
+				// Supported file types / extensions:
+				// - Subtitles: .srt, .vtt
+				// - Lyrics: .lrc
+
+				const externalFileLink = calloutContent.find(
+					'p > a.internal-link[href$=".srt" i],' +
+					'p > a.internal-link[href$=".vtt" i],' +
+					'p > a.internal-link[href$=".lrc" i]'
+				);
 
 				// create root $el
 				const container = el.createDiv();
 				container.classList.add("base-container");
 
-				//create vue app
-				ctx.addChild(
-					new AudioPlayerRenderer(el, {
-						filepath: link.path,
-						title: calloutTitle,
-						content: commentsList,
-						moodbar: moodbar,
-						ctx,
-						player,
-					})
-				);
+				if ( externalFileLink ) {
+					// Read subtitle SRT/VTT file
+					const externalFilePath = externalFileLink.getAttr('href') || ''
+					const externalFile = this.app.metadataCache.getFirstLinkpathDest(
+						getLinkpath(externalFilePath),
+						externalFilePath
+					) as TFile;
+					this.app.vault.cachedRead(externalFile).then((s: string) => {
+						const externalFileExt = externalFile?.extension.toLowerCase() || '';
+						const func = externalFileExt == 'lrc' ? lrcToCommentList : srtToCommentList;
+						const commentsList = func(externalFileLink, s);
+						
+						//create vue app
+						ctx.addChild(
+							new AudioPlayerRenderer(el, {
+								filepath: link.path,
+								title: calloutTitle,
+								content: commentsList,
+								moodbar: moodbar,
+								ctx,
+								player,
+							})
+						)
+					});					
+				} else {
+					// Parse comments entered in the callout block
+					// in one of possible accepted formats:
+
+					// 1. Plugin-specific format (unordered list)
+					let commentsList = calloutContent.find('ul');
+					
+					if ( ! commentsList ) {
+						const text = calloutContent.findAll('p')
+							.map((e) => e.innerText)
+							.join('\n\n');
+
+						// 2. SRT/VTT format
+						if (parseSrt(text).length) {
+							commentsList = srtToCommentList(calloutContent, text);
+						// 3. LRC format
+						} else if (parseLrc(text).length) {
+							commentsList = lrcToCommentList(calloutContent, text);
+						}
+					}
+
+					ctx.addChild(
+						new AudioPlayerRenderer(el, {
+							filepath: link.path,
+							title: calloutTitle,
+							content: commentsList,
+							moodbar: moodbar,
+							ctx,
+							player,
+						})
+					);
+				}
 			}
 		});
 	}

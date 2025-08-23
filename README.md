@@ -49,7 +49,19 @@ It's highly recommended to configure hotkeys for these commands. This will signi
 
 ### Add comments with timestamps
 
-In edit mode, you can add comment entries with timestamps in a list inside the callout block.
+#### Manually add comments
+
+In edit mode, you can add comment entries with timestamps inside the callout block.
+
+The following formats for audio comments are supported:
+1. Native format (see below)
+2. [SubRip subtitle format](https://en.wikipedia.org/wiki/SubRip#Format) (`.srt`)
+3. [WebVTT subtitle format](https://en.wikipedia.org/wiki/WebVTT) (`.vtt`)
+4. [LRC lyrics file format](https://en.wikipedia.org/wiki/LRC_(file_format)) (`.lrc`)
+
+##### Native format
+
+Comments are entered as an unordered list, with the time indication and the comment text separated by `---`.
 
 Times can be specified either as single timestamps or as time windows with start and end time. The timestamp format is `mm:ss.SSS` (milliseconds are optional).
 
@@ -62,9 +74,24 @@ Times can be specified either as single timestamps or as time windows with start
 > - 02:40 --- comment with an [[My Note|internal link]]
 ```
 
-To grab the current timestamp to be pasted in the block, just click on the current time on the player, or run the command **Copy current timestamp to clipboard** (easiest via hotkey).
+:bulb: To grab the current timestamp to be pasted in the block, just click on the current time on the player, or run the command **Copy current timestamp to clipboard** (easiest via hotkey).
 
-Note that unlike in the original [noonesimg/obsidian-audio-player](https://github.com/noonesimg/obsidian-audio-player), it is not possible to add comments via button click in the widget UI.
+#### Import comments from file
+
+Comments can otherwise be sourced from a linked file within the vault (via internal link). The following file formats/extensions are supported:
+- `.srt`
+- `.vtt`
+- `.lrc`
+
+Example:
+
+```
+> [!music-player] Song Title
+> [[my_audio_file.mp3]]
+> [[my_subtitle_file.srt]]
+```
+
+If a file link is provided as comments source, any comments entered in the callout block will be ignored.
 
 ### Display moodbar
 
