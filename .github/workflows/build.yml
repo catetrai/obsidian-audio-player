@@ -1,12 +1,11 @@
-name: Release Obsidian plugin
+name: Build and test Obsidian plugin
 
 on:
-  push:
-    tags:
-      - "*"
+  pull_request:
+    types: [opened, review_requested]
 
 jobs:
-  build:
+  build-test:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -25,14 +24,3 @@ jobs:
       
       - name: Run tests
         run: npm test
-
-      - name: Create release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          tag="${GITHUB_REF#refs/tags/}"
-
-          gh release create "$tag" \
-            --title="$tag" \
-            --generate-notes \
-            main.js manifest.json styles.css
