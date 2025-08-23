@@ -53,12 +53,16 @@ export function parseLrc(lrc: string): Array<Array<string>> {
 	 	Output is list of tuples [time, text]
 	*/
     const lrcEntries = [] as Array<Array<string>>;
+	type RegexGroups = {
+		time: string
+		text: string
+	}
 	
     lrc.split('\n').forEach(line => {
         const match = line.match(/^\[(?<time>\d{2}:\d{2}(.\d{2})?)\](?<text>.*)/);
         if (match == null) return;
-        const { time, text } = match.groups;
-        lrcEntries.push([ parseTime(time), text.trim() ]);
+        const res: Partial<RegexGroups> | undefined = match.groups;
+        lrcEntries.push([ parseTime(res?.time || ''), (res?.text || '').trim() ]);
     });
 
     function parseTime(time: string): string{
@@ -92,17 +96,23 @@ export function parseSrt(srt: string): Array<Array<string>> {
 		Output is list of tuples [startTime, endTime, text]
 	 */
     const srtEntries = [] as Array<Array<string>>;
+	type RegexGroups = {
+		startTime: string
+		endTime: string
+	}
 	
     srt.trim().split("\n\n").forEach(entry => {
 		let sections = entry.split('\n');
 		if (sections[0].match(/^\d+$/)) sections = sections.slice(1);
 		if (sections.length < 2) return;
 		const timeStr = sections[0];
-        const match = timeStr.match(/^(?<startTime>\d{2}:\d{2}:\d{2}([,.]\d{3})?) --> (?<endTime>\d{2}:\d{2}:\d{2}([,.]\d{3})?)/);
+        const match = timeStr.match(
+			/^(?<startTime>\d{2}:\d{2}:\d{2}([,.]\d{3})?) --> (?<endTime>\d{2}:\d{2}:\d{2}([,.]\d{3})?)/
+		);
 		if (match == null) return;
-        const { startTime, endTime } = match.groups;
+        const res: Partial<RegexGroups> | undefined = match.groups;
 		const text = sections.slice(1).join('\n');
-        srtEntries.push([ parseTime(startTime), parseTime(endTime), text.trim() ]);
+        srtEntries.push([ parseTime(res?.startTime || ''), parseTime(res?.endTime || ''), text.trim() ]);
     });
 
     function parseTime(time: string): string{

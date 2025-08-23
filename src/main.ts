@@ -3,6 +3,7 @@ import {
 	MarkdownPostProcessorContext,
 	Notice,
 	Plugin,
+	TFile,
 } from "obsidian";
 
 import { AudioPlayerRenderer } from "./audioPlayerRenderer";
@@ -168,8 +169,8 @@ export default class AudioPlayer extends Plugin {
 					const externalFile = this.app.metadataCache.getFirstLinkpathDest(
 						getLinkpath(externalFilePath),
 						externalFilePath
-					);
-					window.app.vault.cachedRead(externalFile).then((s: string) => {
+					) as TFile;
+					this.app.vault.cachedRead(externalFile).then((s: string) => {
 						const externalFileExt = externalFile?.extension.toLowerCase() || '';
 						const func = externalFileExt == 'lrc' ? lrcToCommentList : srtToCommentList;
 						const commentsList = func(externalFileLink, s);
