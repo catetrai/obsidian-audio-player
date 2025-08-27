@@ -127,7 +127,8 @@ export default class AudioPlayer extends Plugin {
 					"ogg",
 					"flac",
 					"mp4",
-					"m4a"
+					"m4a",
+					"webm"
 				];
 				const link = this.app.metadataCache.getFirstLinkpathDest(
 					getLinkpath(filename),
