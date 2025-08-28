@@ -116,6 +116,14 @@ export default class AudioPlayer extends Plugin {
 			}
 		});
 
+		this.addCommand({
+			id: "audio-skip-back-beginning",
+			name: "Skip back to beginning",
+			callback: () => {
+				if (player.src) player.currentTime = 0;
+			}
+		});
+
 		this.registerMarkdownPostProcessor(
 			(
 				el: HTMLElement,

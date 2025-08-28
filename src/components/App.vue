@@ -3,6 +3,7 @@
     <div class="player-title">{{ displayTitle }}</div>
     <div class="horiz">
       <div v-show="!smallSize" class="vert">
+        <div class="playpause seconds" @click="skipToBeginning" ref="skipBackButton"></div>
         <div class="playpause" @click="togglePlay" ref="playpause"></div>
         <div class="playpause seconds" @click="toggleLooping" ref="loopButton"></div>
       </div>
@@ -266,6 +267,9 @@ export default defineComponent({
       const ev = new Event('allpause');
       document.dispatchEvent(ev);
     },
+    skipToBeginning() {
+      this.audio.currentTime = 0;
+    },
     timeUpdateHandler() {
       if (this.isCurrent()) {
         this.currentTime = this.audio?.currentTime;
@@ -470,6 +474,7 @@ export default defineComponent({
     this.button1 = this.$refs.playpause1 as HTMLSpanElement;
     this.setBtnIcon('play');
     setIcon(this.$refs.loopButton, 'repeat');
+    setIcon(this.$refs.skipBackButton, 'skip-back');
 
     // add event listeners
     document.addEventListener('allpause', () => {  
