@@ -3,8 +3,8 @@
     <div class="player-title">{{ displayTitle }}</div>
     <div class="horiz">
       <div v-show="!smallSize" class="vert">
-        <div class="playpause" @click="togglePlay" ref="playpause">
-        </div>
+        <div class="playpause" @click="togglePlay" ref="playpause"></div>
+        <div class="playpause seconds" @click="toggleLooping" ref="loopButton"></div>
       </div>
       <div class="vert wide">
         <div class="waveform">
@@ -108,6 +108,7 @@ export default defineComponent({
       duration: 0,
       currentTime: 0,
       playing: false,
+      looping: false,
       button: undefined as HTMLSpanElement | undefined,
       button1: undefined as HTMLSpanElement | undefined,
 
@@ -221,6 +222,18 @@ export default defineComponent({
 
       if (this.isCurrent()) {
         this.audio.currentTime = time;
+      }
+    },
+    toggleLooping() {
+      this.looping = ! this.looping;
+      this.audio.loop = this.looping;
+    
+      const button = this.$refs.loopButton;
+    
+      if (this.looping) {
+        button.classList.add('looping');
+      } else {
+        button.classList.remove('looping');
       }
     },
     togglePlay() {
@@ -456,6 +469,7 @@ export default defineComponent({
     this.button = this.$refs.playpause as HTMLSpanElement;
     this.button1 = this.$refs.playpause1 as HTMLSpanElement;
     this.setBtnIcon('play');
+    setIcon(this.$refs.loopButton, 'repeat');
 
     // add event listeners
     document.addEventListener('allpause', () => {  
@@ -464,6 +478,10 @@ export default defineComponent({
     document.addEventListener('allresume', () => {
       if (this.isCurrent())
         this.setBtnIcon('pause');
+    })
+    document.addEventListener('looptoggle', () => {
+      if (this.isCurrent())
+        this.toggleLooping();
     })
     document.addEventListener('addcomment', () => {
       if (this.isCurrent()) 

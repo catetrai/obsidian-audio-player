@@ -56,6 +56,15 @@ export default class AudioPlayer extends Plugin {
 		});
 
 		this.addCommand({
+			id: "toggle-looping",
+			name: "Toggle looping of current track",
+			callback: () => {
+				const ev = new Event("looptoggle");
+				document.dispatchEvent(ev);
+			}
+		});
+
+		this.addCommand({
 			id: "add-audio-comment",
 			name: "Add bookmark",
 			callback: () => {

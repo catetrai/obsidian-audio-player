@@ -91,6 +91,7 @@ If your plugin does not need CSS, delete this file.
 .playpause {
 	flex: 1;
 	margin: 6px;
+	margin-top: 1px;
 	background-color: var(--color-accent-1);
 	display: flex;
 	justify-content: center;
@@ -99,7 +100,7 @@ If your plugin does not need CSS, delete this file.
 	border-radius: 30px;
 	max-height: 40px;
 	max-width: 40px;
-	opacity: 0.8;
+	opacity: 0.7;
 	transition: all 0.15s;
 	cursor: pointer;
 }
@@ -109,13 +110,18 @@ If your plugin does not need CSS, delete this file.
 .playpause:active {
 	background-color: var(--color-base-10);
 }
+.playpause.looping {
+	opacity: 1;
+	color: var(--color-accent-1);
+}
 .seconds {
 	border-radius: 2;
 	min-height: unset;
 	padding-top: 0;
 	padding-bottom: 0;
-	height: 25px;
+	height: 15px;
 	flex: unset;
+	background: none;
 }
 .vert {
 	display: flex;
@@ -123,7 +129,7 @@ If your plugin does not need CSS, delete this file.
 }
 .vert:first-of-type {
 	margin-right: 6px;
-	margin-top: 12px;
+	margin-top: -5px;
 }
 .horiz {
 	display: flex;
