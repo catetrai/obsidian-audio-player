@@ -167,7 +167,7 @@ If your plugin does not need CSS, delete this file.
 	display: grid;
 	grid-template-columns: 80px 1fr 20px;
 	gap: 15px;
-	padding-right: 1em;
+	padding-right: 0.5em;
 	border-top: 1px solid transparent;
 }
 
@@ -209,7 +209,9 @@ If your plugin does not need CSS, delete this file.
 }
 
 .comment > .loopcmt{
-	margin-top: 5px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
 }
 .comment > span ~ .loopcmt{
 	opacity: 0;
