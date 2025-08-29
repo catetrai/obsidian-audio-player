@@ -5,7 +5,10 @@
       <div v-show="!smallSize" class="vert">
         <div class="playpause seconds" @click="skipToBeginning" ref="skipBackButton"></div>
         <div class="playpause" @click="togglePlay" ref="playpause"></div>
-        <div class="playpause seconds" @click="toggleLooping" v-bind:class="{'looping': this.looping}" ref="loopButton"></div>
+        <div class="playpause seconds" @click="toggleLooping"
+          v-bind:class="{'looping': this.looping}"
+          ref="loopButton">
+        </div>
       </div>
       <div class="vert wide">
         <div class="waveform">
