@@ -91,6 +91,7 @@ If your plugin does not need CSS, delete this file.
 .playpause {
 	flex: 1;
 	margin: 6px;
+	margin-top: 1px;
 	background-color: var(--color-accent-1);
 	display: flex;
 	justify-content: center;
@@ -99,7 +100,7 @@ If your plugin does not need CSS, delete this file.
 	border-radius: 30px;
 	max-height: 40px;
 	max-width: 40px;
-	opacity: 0.8;
+	opacity: 0.7;
 	transition: all 0.15s;
 	cursor: pointer;
 }
@@ -109,13 +110,18 @@ If your plugin does not need CSS, delete this file.
 .playpause:active {
 	background-color: var(--color-base-10);
 }
+.playpause.looping {
+	opacity: 1;
+	color: var(--color-accent-1);
+}
 .seconds {
 	border-radius: 2;
 	min-height: unset;
 	padding-top: 0;
 	padding-bottom: 0;
-	height: 25px;
+	height: 15px;
 	flex: unset;
+	background: none;
 }
 .vert {
 	display: flex;
@@ -123,7 +129,7 @@ If your plugin does not need CSS, delete this file.
 }
 .vert:first-of-type {
 	margin-right: 6px;
-	margin-top: 12px;
+	margin-top: -5px;
 }
 .horiz {
 	display: flex;
@@ -159,10 +165,9 @@ If your plugin does not need CSS, delete this file.
 	min-height: 20px;
 	transition: all 0.2s;
 	display: grid;
-	grid-template-columns: 80px 1fr;
+	grid-template-columns: 80px 1fr 20px;
 	gap: 15px;
 	padding-right: 1em;
-	cursor: pointer;
 	border-top: 1px solid transparent;
 }
 
@@ -175,6 +180,9 @@ If your plugin does not need CSS, delete this file.
 }
 .comment:active {
 	background-color: var(--color-base-10);
+}
+.comment > span:hover {
+	cursor: pointer;
 }
 
 .comment > .timestamp,
@@ -198,6 +206,22 @@ If your plugin does not need CSS, delete this file.
 }
 .delete-comment:active {
 	background-color: var(--color-base-10);
+}
+
+.comment > .loopcmt{
+	margin-top: 5px;
+}
+.comment > span ~ .loopcmt{
+	opacity: 0;
+}
+.comment:hover > .loopcmt{
+	opacity: 0.7;
+}
+.comment > .loopcmt:hover{
+	opacity: 1;
+}
+.loopcmt.looping {
+	color: var(--color-accent-1);
 }
 
 .comment-input {

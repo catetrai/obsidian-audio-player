@@ -56,6 +56,15 @@ export default class AudioPlayer extends Plugin {
 		});
 
 		this.addCommand({
+			id: "toggle-looping",
+			name: "Toggle looping of current track",
+			callback: () => {
+				const ev = new Event("looptoggle");
+				document.dispatchEvent(ev);
+			}
+		});
+
+		this.addCommand({
 			id: "add-audio-comment",
 			name: "Add bookmark",
 			callback: () => {
@@ -104,6 +113,14 @@ export default class AudioPlayer extends Plugin {
 			name: "-5 sec",
 			callback: () => {
 				if (player.src) player.currentTime -= 5;
+			}
+		});
+
+		this.addCommand({
+			id: "audio-skip-back-beginning",
+			name: "Skip back to beginning",
+			callback: () => {
+				if (player.src) player.currentTime = 0;
 			}
 		});
 

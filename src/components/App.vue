@@ -3,7 +3,11 @@
     <div class="player-title">{{ displayTitle }}</div>
     <div class="horiz">
       <div v-show="!smallSize" class="vert">
-        <div class="playpause" @click="togglePlay" ref="playpause">
+        <div class="playpause seconds" @click="skipToBeginning" ref="skipBackButton"></div>
+        <div class="playpause" @click="togglePlay" ref="playpause"></div>
+        <div class="playpause seconds" @click="toggleLooping"
+          v-bind:class="{'looping': this.looping}"
+          ref="loopButton">
         </div>
       </div>
       <div class="vert wide">
@@ -108,6 +112,7 @@ export default defineComponent({
       duration: 0,
       currentTime: 0,
       playing: false,
+      looping: false,
       button: undefined as HTMLSpanElement | undefined,
       button1: undefined as HTMLSpanElement | undefined,
 
@@ -223,6 +228,10 @@ export default defineComponent({
         this.audio.currentTime = time;
       }
     },
+    toggleLooping() {
+      this.looping = ! this.looping;
+      this.audio.loop = this.looping;
+    },
     togglePlay() {
       if (!this.isCurrent()) {
         this.audio.src = this.srcPath;
@@ -252,6 +261,9 @@ export default defineComponent({
     globalPause() {
       const ev = new Event('allpause');
       document.dispatchEvent(ev);
+    },
+    skipToBeginning() {
+      this.audio.currentTime = 0;
     },
     timeUpdateHandler() {
       if (this.isCurrent()) {
@@ -285,6 +297,16 @@ export default defineComponent({
           this.activeComment = activeComment;
         } else {
           this.activeComment = null;
+        }
+
+        // Check if immediately previous comment should be looped
+        const immediatelyPreviousComments = this.commentsSorted.filter((x: AudioComment) =>
+          this.currentTime - x.timeEnd >= 0 && this.currentTime - x.timeEnd <= 0.5
+        );
+        if (immediatelyPreviousComments.length > 0) {
+          if (immediatelyPreviousComments[0].looping) {
+            this.setPlayheadSecs(immediatelyPreviousComments[0].timeStart);
+          }
         }
       }
     },
@@ -339,7 +361,8 @@ export default defineComponent({
               content: content,
               index: 0, // calculated at the end when sorting
               barEdges: bars,
-              overlapScore: 0 // calculated at the end
+              overlapScore: 0, // calculated at the end
+              looping: false  // do not loop by default
             }
             return cmt;
           }
@@ -456,6 +479,8 @@ export default defineComponent({
     this.button = this.$refs.playpause as HTMLSpanElement;
     this.button1 = this.$refs.playpause1 as HTMLSpanElement;
     this.setBtnIcon('play');
+    setIcon(this.$refs.loopButton, 'repeat');
+    setIcon(this.$refs.skipBackButton, 'skip-back');
 
     // add event listeners
     document.addEventListener('allpause', () => {  
@@ -464,6 +489,10 @@ export default defineComponent({
     document.addEventListener('allresume', () => {
       if (this.isCurrent())
         this.setBtnIcon('pause');
+    })
+    document.addEventListener('looptoggle', () => {
+      if (this.isCurrent())
+        this.toggleLooping();
     })
     document.addEventListener('addcomment', () => {
       if (this.isCurrent()) 
@@ -492,6 +521,9 @@ export default defineComponent({
     this.ro = new ResizeObserver(this.onResize);
     this.ro.observe(this.$el);
   },
+  beforeUnmount() {
+		this.audio.removeEventListener("timeupdate", this.timeUpdateHandler);
+	},
   beforeDestroy() {
     this.ro.unobserve(this.$el);
   }
