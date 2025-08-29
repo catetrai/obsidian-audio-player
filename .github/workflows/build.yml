@@ -1,8 +1,9 @@
 name: Build and test Obsidian plugin
 
 on:
-  pull_request:
-    types: [opened, review_requested]
+  push:
+    paths:
+      - 'src/**'
 
 jobs:
   build-test:
