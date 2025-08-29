@@ -5,7 +5,7 @@
       <div v-show="!smallSize" class="vert">
         <div class="playpause seconds" @click="skipToBeginning" ref="skipBackButton"></div>
         <div class="playpause" @click="togglePlay" ref="playpause"></div>
-        <div class="playpause seconds" @click="toggleLooping" ref="loopButton"></div>
+        <div class="playpause seconds" @click="toggleLooping" v-bind:class="{'looping': this.looping}" ref="loopButton"></div>
       </div>
       <div class="vert wide">
         <div class="waveform">
@@ -228,14 +228,6 @@ export default defineComponent({
     toggleLooping() {
       this.looping = ! this.looping;
       this.audio.loop = this.looping;
-    
-      const button = this.$refs.loopButton;
-    
-      if (this.looping) {
-        button.classList.add('looping');
-      } else {
-        button.classList.remove('looping');
-      }
     },
     togglePlay() {
       if (!this.isCurrent()) {
@@ -303,6 +295,16 @@ export default defineComponent({
         } else {
           this.activeComment = null;
         }
+
+        // Check if immediately previous comment should be looped
+        const immediatelyPreviousComments = this.commentsSorted.filter((x: AudioComment) =>
+          this.currentTime - x.timeEnd >= 0 && this.currentTime - x.timeEnd <= 0.5
+        );
+        if (immediatelyPreviousComments.length > 0) {
+          if (immediatelyPreviousComments[0].looping) {
+            this.setPlayheadSecs(immediatelyPreviousComments[0].timeStart);
+          }
+        }
       }
     },
 
@@ -356,7 +358,8 @@ export default defineComponent({
               content: content,
               index: 0, // calculated at the end when sorting
               barEdges: bars,
-              overlapScore: 0 // calculated at the end
+              overlapScore: 0, // calculated at the end
+              looping: false  // do not loop by default
             }
             return cmt;
           }
@@ -515,6 +518,9 @@ export default defineComponent({
     this.ro = new ResizeObserver(this.onResize);
     this.ro.observe(this.$el);
   },
+  beforeUnmount() {
+		this.audio.removeEventListener("timeupdate", this.timeUpdateHandler);
+	},
   beforeDestroy() {
     this.ro.unobserve(this.$el);
   }

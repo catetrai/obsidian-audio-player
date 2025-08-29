@@ -8,6 +8,7 @@ export type AudioComment = {
 	index: number;
 	barEdges: [number, number];
 	overlapScore: number;
+	looping: boolean;
 };
 
 export type AudioPlayerRendererOptions = {

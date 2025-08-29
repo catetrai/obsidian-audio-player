@@ -165,10 +165,9 @@ If your plugin does not need CSS, delete this file.
 	min-height: 20px;
 	transition: all 0.2s;
 	display: grid;
-	grid-template-columns: 80px 1fr;
+	grid-template-columns: 80px 1fr 20px;
 	gap: 15px;
 	padding-right: 1em;
-	cursor: pointer;
 	border-top: 1px solid transparent;
 }
 
@@ -181,6 +180,9 @@ If your plugin does not need CSS, delete this file.
 }
 .comment:active {
 	background-color: var(--color-base-10);
+}
+.comment > span:hover {
+	cursor: pointer;
 }
 
 .comment > .timestamp,
@@ -204,6 +206,22 @@ If your plugin does not need CSS, delete this file.
 }
 .delete-comment:active {
 	background-color: var(--color-base-10);
+}
+
+.comment > .loopcmt{
+	margin-top: 5px;
+}
+.comment > span ~ .loopcmt{
+	opacity: 0;
+}
+.comment:hover > .loopcmt{
+	opacity: 0.7;
+}
+.comment > .loopcmt:hover{
+	opacity: 1;
+}
+.loopcmt.looping {
+	color: var(--color-accent-1);
 }
 
 .comment-input {
