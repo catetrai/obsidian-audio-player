@@ -2,7 +2,10 @@
   <div class="comment">
     <span class="timestamp" @click="emitMovePlayhead">{{ cmt?.timeString }}</span>
     <span class="content" v-html="cmt?.content" @click="emitMovePlayhead"></span>
-    <span class="loopcmt" ref="loopcmt" v-bind:class="{'looping': cmt?.looping}" @click="toggleLooping"></span>
+    <span class="loopcmt" ref="loopcmt"
+      v-bind:class="{'looping': cmt?.looping}"
+      @click="toggleLooping">
+    </span>
   </div>
   
 </template>
@@ -25,7 +28,7 @@ export default defineComponent({
     },
     toggleLooping() {
       this.cmt.looping = ! this.cmt.looping;
-    },
+    }
   },
   mounted() {
     setIcon(this.$refs.loopcmt, 'repeat');
