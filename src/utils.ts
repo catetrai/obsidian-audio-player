@@ -25,8 +25,14 @@ export function hasOverlap(a: number[], b: number[]) {
 export function lrcToCommentList(el: HTMLElement, lrcText: string): HTMLElement {
 	const lrcItems = parseLrc(lrcText);
 	const list = el.createEl('ul');
-	lrcItems.forEach((l) => {
-		list.createEl('li', { text: `${l[0]} --- ${l[1]}` })
+	lrcItems.forEach((l, i) => {
+		// We assume that end time == start time of next lyric
+		let endTime = i < lrcItems.length - 1 ? lrcItems[i + 1][0] : '';
+		let sep = endTime ? '-' : ''
+		// Ignore entries with empty lyrics text
+		if (l[1]) {
+			list.createEl('li', { text: `${l[0]}${sep}${endTime} --- ${l[1]}` })
+		}
 	});
 	return list;
 }
