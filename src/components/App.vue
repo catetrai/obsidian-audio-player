@@ -471,6 +471,8 @@ export default defineComponent({
       this.currentTime = this.audio.currentTime
       this.audio.addEventListener('timeupdate', this.timeUpdateHandler);
       this.setBtnIcon(this.audio.paused ? 'play' : 'pause');
+      // Get current looping state
+      this.looping = this.audio.loop;
     }
 
     // Load comments
