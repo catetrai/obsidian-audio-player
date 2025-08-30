@@ -132,7 +132,7 @@ If your plugin does not need CSS, delete this file.
 	color: var(--color-accent-1);
 }
 
-.controls {
+.playpause-controls {
 	border-radius: 2;
 	min-height: unset;
 	padding-top: 0;

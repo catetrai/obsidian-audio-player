@@ -3,9 +3,9 @@
     <div class="player-title">{{ displayTitle }}</div>
     <div class="horiz">
       <div v-show="!smallSize" class="vert">
-        <div class="playpause seconds" @click="skipToBeginning" ref="skipBackButton"></div>
+        <div class="playpause playpause-controls" @click="skipToBeginning" ref="skipBackButton"></div>
         <div class="playpause" @click="togglePlay" ref="playpause"></div>
-        <div class="playpause seconds" @click="toggleLooping" v-bind:class="{ 'looping': looping }" ref="loopButton">
+        <div class="playpause playpause-controls" @click="toggleLooping" v-bind:class="{ 'looping': looping }" ref="loopButton">
         </div>
       </div>
       <div class="vert wide">
