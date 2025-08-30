@@ -14,7 +14,7 @@
             'played': i <= currentBar,
             'commented': barsWithComments.includes(i),
             'highlighted': highlightedBars.includes(i)
-          }" @mouseover="setWvTimestampTooltip(i); highlightCommentForBar(i);" @mouseout="unhighlightComment();"
+          }" @mouseover="setWvTimestampTooltip(i); highlightCommentForBar(i);"@mouseout="unhighlightComment();"
             @mousedown="barMouseDownHandler(i);" :style="{
               height: s * 50 + 'px'
             }">
@@ -40,22 +40,12 @@
         </div>
       </div>
     </div>
-    <div v-show="smallSize" class="horiz" :style="{ 'margin': 'auto' }">
-      <div class="playpause seconds" @click="setPlayheadSecs(currentTime - 5)" ref="min5">
-        -5s
-      </div>
-      <div class="playpause play-button" @click="togglePlay" ref="playpause1">
-      </div>
-      <div class="playpause seconds" @click="setPlayheadSecs(currentTime + 5)" ref="add5">
-        +5s
-      </div>
-    </div>
     <div class="comment-list">
       <AudioCommentVue ref="audiocomment" v-for="cmt in commentsSorted" v-bind:class="{
         'active-comment': cmt == activeComment,
         'current-comment': cmt == currentComment,
         'highlighted-comment': cmt == highlightedComment
-      }" @move-playhead="setPlayheadSecs" @remove="removeComment" @mouseover="highlightBars(barsForComment(cmt))"
+      }" @move-playhead="setPlayheadSecs" @mouseover="highlightBars(barsForComment(cmt))"
         @mouseout="unhighlightBars()" :cmt="cmt" :key="cmt.timeString"></AudioCommentVue>
       <div class="comment" v-if="commentsSorted.length > 0" v-bind:class="{
         'current-comment': currentComment == null
@@ -100,7 +90,6 @@ export default defineComponent({
       playing: false,
       looping: false,
       button: undefined as HTMLSpanElement | undefined,
-      button1: undefined as HTMLSpanElement | undefined,
 
       clickCount: 0,
       showInput: false,
@@ -297,10 +286,7 @@ export default defineComponent({
       }
     },
 
-    setBtnIcon(icon: string) {
-      setIcon(this.button, icon);
-      setIcon(this.button1, icon);
-    },
+    setBtnIcon(icon: string) { setIcon(this.button, icon); },
 
     addComment() {
       if (this.newComment.length == 0)
@@ -310,12 +296,6 @@ export default defineComponent({
       const timeStamp = secondsToString(this.currentTime);
       lines.splice(sectionInfo.lineEnd, 0, `${timeStamp} --- ${this.newComment}`);
 
-      window.app.vault.adapter.write(this.ctx.sourcePath, lines.join('\n'))
-    },
-    removeComment(i: number) {
-      const sectionInfo = this.getSectionInfo();
-      const lines = sectionInfo.text.split('\n') as string[];
-      lines.splice(sectionInfo.lineStart + 2 + i, 1);
       window.app.vault.adapter.write(this.ctx.sourcePath, lines.join('\n'))
     },
     getComments(): Array<AudioComment> {
@@ -463,7 +443,6 @@ export default defineComponent({
   },
   mounted() {
     this.button = this.$refs.playpause as HTMLSpanElement;
-    this.button1 = this.$refs.playpause1 as HTMLSpanElement;
     this.setBtnIcon('play');
     setIcon(this.$refs.loopButton, 'repeat');
     setIcon(this.$refs.skipBackButton, 'skip-back');
@@ -479,10 +458,6 @@ export default defineComponent({
     document.addEventListener('looptoggle', () => {
       if (this.isCurrent())
         this.toggleLooping();
-    })
-    document.addEventListener('addcomment', () => {
-      if (this.isCurrent())
-        this.showCommentInput();
     })
     this.audio.addEventListener('ended', () => {
       if (this.audio.src === this.srcPath)
@@ -502,7 +477,6 @@ export default defineComponent({
 
     // load comments
     setTimeout(() => { this.comments = this.getComments(); });
-
 
     this.ro = new ResizeObserver(this.onResize);
     this.ro.observe(this.$el);

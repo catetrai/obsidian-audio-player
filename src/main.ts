@@ -65,15 +65,6 @@ export default class AudioPlayer extends Plugin {
 		});
 
 		this.addCommand({
-			id: "add-audio-comment",
-			name: "Add bookmark",
-			callback: () => {
-				const ev = new Event("addcomment");
-				document.dispatchEvent(ev);
-			}
-		});
-		
-		this.addCommand({
 			id: "copy-timestamp",
 			name: "Copy current timestamp to clipboard",
 			callback: () => {
@@ -135,7 +126,7 @@ export default class AudioPlayer extends Plugin {
 				ctx: MarkdownPostProcessorContext
 			) => {
 			const callouts = el.findAll('.callout[data-callout="music-player"]');
-			
+
 			for (const callout of callouts) {
 				const calloutContent = callout.find('.callout-content');
 				

@@ -23,9 +23,6 @@ export default defineComponent({
     emitMovePlayhead() {
       this.$emit('move-playhead', this.cmt?.timeStart);
     },
-    emitRemove() {
-      this.$emit('remove', this.cmt.index);
-    },
     toggleLooping() {
       this.cmt.looping = ! this.cmt.looping;
     }

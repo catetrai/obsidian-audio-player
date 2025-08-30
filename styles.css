@@ -31,10 +31,6 @@ If your plugin does not need CSS, delete this file.
 	flex-direction: column;
 }
 
-.my-audio {
-	display: none;
-}
-
 .player-title {
 	margin-left: 5px;
 	margin-bottom: 10px;
@@ -98,7 +94,6 @@ If your plugin does not need CSS, delete this file.
 }
 
 .wv-shade.end {
-	/* border-right: inherit; */
 	margin-right: 1px;
 }
 
@@ -211,29 +206,10 @@ If your plugin does not need CSS, delete this file.
 	cursor: pointer;
 }
 
-.comment>.timestamp,
-.comment>.delete-comment {
+.comment>.timestamp {
 	color: var(--color-base-50);
 	font-size: 0.9rem;
 	margin-top: 2px;
-}
-
-.delete-comment {
-	width: 20px;
-	height: 22px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: all 0.2s;
-}
-
-.delete-comment:hover {
-	background-color: var(--color-red);
-	color: var(--white);
-}
-
-.delete-comment:active {
-	background-color: var(--color-base-10);
 }
 
 .comment>.loopcmt {
