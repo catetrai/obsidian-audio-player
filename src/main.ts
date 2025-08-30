@@ -124,6 +124,10 @@ export default class AudioPlayer extends Plugin {
 			}
 		});
 
+		// Treat subtitle/lyrics files as Markdown files that can be
+		// opened in the viewer and editor
+		this.registerExtensions(['lrc', 'srt', 'vtt'], 'markdown');
+
 		this.registerMarkdownPostProcessor(
 			(
 				el: HTMLElement,
