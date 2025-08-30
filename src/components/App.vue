@@ -14,10 +14,8 @@
             'played': i <= currentBar,
             'commented': barsWithComments.includes(i),
             'highlighted': highlightedBars.includes(i)
-          }" @mouseover="setWvTimestampTooltip(i); highlightCommentForBar(i);"@mouseout="unhighlightComment();"
-            @mousedown="barMouseDownHandler(i);" :style="{
-              height: s * 50 + 'px'
-            }">
+          }" @mouseover="setWvTimestampTooltip(i); highlightCommentForBar(i);" @mouseout="unhighlightComment();"
+              @mousedown="barMouseDownHandler(i);" :style="{ height: s * 50 + 'px' }">
             <div class="wv-shade" v-if="barsWithComments.includes(i)" v-for="cmt in commentsForBar(i)" v-bind:class="{
               'begin': hasBeginSeparator(cmt, i),
               'end': hasEndSeparator(cmt, i)
