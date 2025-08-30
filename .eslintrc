@@ -14,7 +14,7 @@
         "sourceType": "module"
     },
     "rules": {
-      "no-unused-vars": "on",
+      "no-unused-vars": 2,
       "@typescript-eslint/no-unused-vars": ["error", { "args": "none" }],
       "@typescript-eslint/ban-ts-comment": "off",
       "no-prototype-builtins": "off",
