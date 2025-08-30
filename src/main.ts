@@ -19,7 +19,7 @@ export default class AudioPlayer extends Plugin {
 
 		this.addCommand({
 			id: "pause-audio",
-			name: "Pause Audio",
+			name: "Pause audio",
 			callback: () => {
 				new Notice("Audio paused");
 				const ev = new Event("allpause");
@@ -30,7 +30,7 @@ export default class AudioPlayer extends Plugin {
 
 		this.addCommand({
 			id: "resume-audio",
-			name: "Resume Audio",
+			name: "Resume audio",
 			callback: () => {
 				new Notice("Audio resumed");
 				const ev = new Event("allresume");
@@ -41,7 +41,7 @@ export default class AudioPlayer extends Plugin {
 
 		this.addCommand({
 			id: "toggle-audio",
-			name: "Toggle Audio",
+			name: "Toggle play/pause",
 			callback: () => {
 				if (player.src && player.paused) {
 					const ev = new Event("allresume");
@@ -84,7 +84,7 @@ export default class AudioPlayer extends Plugin {
 		
 		this.addCommand({
 			id: "toggle-and-copy-timestamp",
-			name: "Play/pause and copy current timestamp",
+			name: "Toggle play/pause and copy current timestamp",
 			callback: () => {
 				if (player.src && player.paused) {
 					const ev = new Event("allresume");
@@ -102,7 +102,7 @@ export default class AudioPlayer extends Plugin {
 
 		this.addCommand({
 			id: "audio-forward-5s",
-			name: "+5 sec",
+			name: "Skip +5 sec",
 			callback: () => {
 				if (player.src) player.currentTime += 5;
 			}
@@ -110,7 +110,7 @@ export default class AudioPlayer extends Plugin {
 
 		this.addCommand({
 			id: "audio-back-5s",
-			name: "-5 sec",
+			name: "Skip -5 sec",
 			callback: () => {
 				if (player.src) player.currentTime -= 5;
 			}
