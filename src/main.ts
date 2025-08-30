@@ -135,8 +135,8 @@ export default class AudioPlayer extends Plugin {
 				ctx: MarkdownPostProcessorContext
 			) => {
 			const callouts = el.findAll('.callout[data-callout="music-player"]');
-	  
-			for (let callout of callouts) {
+			
+			for (const callout of callouts) {
 				const calloutContent = callout.find('.callout-content');
 				
 				// Parse file name
