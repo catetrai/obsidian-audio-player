@@ -79,7 +79,6 @@ export default defineComponent({
   },
   data() {
     return {
-      toggle: false,
       items: [...Array(100).keys()],
       srcPath: '',
 
@@ -91,8 +90,6 @@ export default defineComponent({
       looping: false,
       button: undefined as HTMLSpanElement | undefined,
 
-      clickCount: 0,
-      showInput: false,
       newComment: '',
       comments: [] as AudioComment[],
       activeComment: null as AudioComment | null,
@@ -173,26 +170,9 @@ export default defineComponent({
         this.saveCache();
       })
     },
-    showCommentInput() {
-      this.showInput = true;
-      setTimeout(() => {
-        const input = this.$refs.commentInput as HTMLInputElement;
-        input.focus();
-      })
-    },
     barMouseDownHandler(i: number) {
-      this.clickCount += 1;
-      setTimeout(() => {
-        this.clickCount = 0;
-      }, 200);
-
-      if (this.clickCount >= 2) {
-        this.showCommentInput();
-      } else {
-        let time = i / this.nSamples * this.duration;
-        this.setPlayheadSecs(time);
-
-      }
+      let time = i / this.nSamples * this.duration;
+      this.setPlayheadSecs(time);
     },
     setPlayheadSecs(time: any) {
       this.currentTime = time;
@@ -288,16 +268,6 @@ export default defineComponent({
 
     setBtnIcon(icon: string) { setIcon(this.button, icon); },
 
-    addComment() {
-      if (this.newComment.length == 0)
-        return;
-      const sectionInfo = this.getSectionInfo();
-      const lines = sectionInfo.text.split('\n') as string[];
-      const timeStamp = secondsToString(this.currentTime);
-      lines.splice(sectionInfo.lineEnd, 0, `${timeStamp} --- ${this.newComment}`);
-
-      window.app.vault.adapter.write(this.ctx.sourcePath, lines.join('\n'))
-    },
     getComments(): Array<AudioComment> {
       const cmtElems = Array.from(this.content?.children || []);
 
