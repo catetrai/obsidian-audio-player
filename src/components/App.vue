@@ -5,41 +5,33 @@
       <div v-show="!smallSize" class="vert">
         <div class="playpause seconds" @click="skipToBeginning" ref="skipBackButton"></div>
         <div class="playpause" @click="togglePlay" ref="playpause"></div>
-        <div class="playpause seconds" @click="toggleLooping"
-          v-bind:class="{'looping': this.looping}"
-          ref="loopButton">
+        <div class="playpause seconds" @click="toggleLooping" v-bind:class="{ 'looping': looping }" ref="loopButton">
         </div>
       </div>
       <div class="vert wide">
         <div class="waveform">
-          <div class="wv" ref="wv" v-for="(s, i) in filteredData" :key="srcPath+i"
-            v-bind:class="{
-              'played': i <= currentBar,
-              'commented': barsWithComments.includes(i),
-              'highlighted': highlightedBars.includes(i)
-            }"
-            @mouseover="setWvTimestampTooltip(i); highlightCommentForBar(i);"
-            @mouseout="unhighlightComment();"
-            @mousedown="barMouseDownHandler(i);"
-            :style="{
+          <div class="wv" ref="wv" v-for="(s, i) in filteredData" :key="srcPath + i" v-bind:class="{
+            'played': i <= currentBar,
+            'commented': barsWithComments.includes(i),
+            'highlighted': highlightedBars.includes(i)
+          }" @mouseover="setWvTimestampTooltip(i); highlightCommentForBar(i);" @mouseout="unhighlightComment();"
+            @mousedown="barMouseDownHandler(i);" :style="{
               height: s * 50 + 'px'
             }">
-            <div class="wv-shade" v-if="barsWithComments.includes(i)"
-              v-for="cmt in this.commentsForBar(i)"
-              v-bind:class="{
-                'begin': this.hasBeginSeparator(cmt, i),
-                'end': this.hasEndSeparator(cmt, i)
-              }"
-              :style="{
+            <div class="wv-shade" v-if="barsWithComments.includes(i)" v-for="cmt in commentsForBar(i)" v-bind:class="{
+              'begin': hasBeginSeparator(cmt, i),
+              'end': hasEndSeparator(cmt, i)
+            }" :style="{
                 position: 'relative',
-                height: getBarHighlightHeight(s, i, cmt.overlapScore, this.commentsForBar(i)) + 'px',
-                'margin-top': getBarHighlightMarginTop(s, i, cmt.overlapScore, cmt, this.commentsForBar(i)) + 'px',
+                height: getBarHighlightHeight(s, i, cmt.overlapScore, commentsForBar(i)) + 'px',
+                'margin-top': getBarHighlightMarginTop(s, i, cmt.overlapScore, cmt, commentsForBar(i)) + 'px',
               }"></div>
           </div>
         </div>
         <div class="moodbar" v-html="displayedMoodbar"></div>
         <div class="timeline">
-          <span class="current-time" @mouseover="setCopyTimestampTooltip" @click="copyTimestampToClipboard" ref="currentTime">
+          <span class="current-time" @mouseover="setCopyTimestampTooltip" @click="copyTimestampToClipboard"
+            ref="currentTime">
             {{ displayedCurrentTime }}
           </span>
           <span class="duration">
@@ -48,32 +40,26 @@
         </div>
       </div>
     </div>
-    <div v-show="smallSize" class="horiz" :style="{'margin': 'auto'}">
-      <div class="playpause seconds" @click="setPlayheadSecs(currentTime-5)" ref="min5">
+    <div v-show="smallSize" class="horiz" :style="{ 'margin': 'auto' }">
+      <div class="playpause seconds" @click="setPlayheadSecs(currentTime - 5)" ref="min5">
         -5s
       </div>
       <div class="playpause play-button" @click="togglePlay" ref="playpause1">
       </div>
-      <div class="playpause seconds" @click="setPlayheadSecs(currentTime+5)" ref="add5">
+      <div class="playpause seconds" @click="setPlayheadSecs(currentTime + 5)" ref="add5">
         +5s
       </div>
     </div>
     <div class="comment-list">
-      <AudioCommentVue ref="audiocomment" v-for="cmt in commentsSorted"
-        v-bind:class="{
-          'active-comment': cmt == activeComment,
-          'current-comment': cmt == currentComment,
-          'highlighted-comment': cmt == highlightedComment
-        }"
-        @move-playhead="setPlayheadSecs" @remove="removeComment"
-        @mouseover="highlightBars(barsForComment(cmt))"
-        @mouseout="unhighlightBars()"
-        :cmt="cmt" :key="cmt.timeString"></AudioCommentVue>
-      <div class="comment"
-        v-if="commentsSorted.length > 0"
-        v-bind:class="{
-          'current-comment' : currentComment == null
-        }">
+      <AudioCommentVue ref="audiocomment" v-for="cmt in commentsSorted" v-bind:class="{
+        'active-comment': cmt == activeComment,
+        'current-comment': cmt == currentComment,
+        'highlighted-comment': cmt == highlightedComment
+      }" @move-playhead="setPlayheadSecs" @remove="removeComment" @mouseover="highlightBars(barsForComment(cmt))"
+        @mouseout="unhighlightBars()" :cmt="cmt" :key="cmt.timeString"></AudioCommentVue>
+      <div class="comment" v-if="commentsSorted.length > 0" v-bind:class="{
+        'current-comment': currentComment == null
+      }">
       </div>
     </div>
   </div>
@@ -138,13 +124,13 @@ export default defineComponent({
     startBars() { return this.commentsSorted.map((c: AudioComment) => c.barEdges[0]) },
     endBars() { return this.commentsSorted.map((c: AudioComment) => c.barEdges[1]) },
     barsWithComments() { return this.comments.map((c: AudioComment) => range(...c.barEdges)).flat().unique(); },
-    commentsSorted() { return this.comments.sort((x: AudioComment, y:AudioComment) => x.timeStart - y.timeStart); },
+    commentsSorted() { return this.comments.sort((x: AudioComment, y: AudioComment) => x.timeStart - y.timeStart); },
   },
   methods: {
     getSectionInfo() { return this.ctx.getSectionInfo(this.mdElement); },
     getParentWidth() { return this.mdElement.clientWidth },
     isCurrent() { return this.audio.src === this.srcPath; },
-    onResize() { 
+    onResize() {
       this.smallSize = this.$el.clientWidth < 300;
     },
     async loadFile() {
@@ -154,7 +140,7 @@ export default defineComponent({
       // process audio file & set audio el source
       if (file && file instanceof TFile) {
         //check cached values
-        if (!this.loadCache()) 
+        if (!this.loadCache())
           this.processAudio(file.path);
 
         this.srcPath = window.app.vault.getResourcePath(file);
@@ -169,11 +155,11 @@ export default defineComponent({
       let cachedDuration = localStorage[`${this.filepath}_duration`];
 
       if (!cachedData) { return false; }
-      
+
       this.filteredData = JSON.parse(cachedData);
       this.duration = Number.parseFloat(cachedDuration)
       return true;
-    },  
+    },
     async processAudio(path: string) {
       const arrBuf = await window.app.vault.adapter.readBinary(path);
       const audioContext = new AudioContext();
@@ -192,7 +178,7 @@ export default defineComponent({
           }
           tempArray.push(sum / blockSize);
         }
-        
+
         let maxval = Math.max(...tempArray);
         this.filteredData = tempArray.map(x => x / maxval);
         this.saveCache();
@@ -216,20 +202,20 @@ export default defineComponent({
       } else {
         let time = i / this.nSamples * this.duration;
         this.setPlayheadSecs(time);
-        
+
       }
     },
     setPlayheadSecs(time: any) {
       this.currentTime = time;
-      if (!this.isCurrent()) 
-          this.togglePlay();
+      if (!this.isCurrent())
+        this.togglePlay();
 
       if (this.isCurrent()) {
         this.audio.currentTime = time;
       }
     },
     toggleLooping() {
-      this.looping = ! this.looping;
+      this.looping = !this.looping;
       this.audio.loop = this.looping;
     },
     togglePlay() {
@@ -242,7 +228,7 @@ export default defineComponent({
         this.play();
       } else {
         this.pause();
-      } 
+      }
     },
     play() {
       if (this.currentTime > 0) {
@@ -251,7 +237,7 @@ export default defineComponent({
       this.audio.addEventListener('timeupdate', this.timeUpdateHandler);
       this.audio?.play();
       this.playing = true;
-      this.setBtnIcon('pause');    
+      this.setBtnIcon('pause');
     },
     pause() {
       this.audio?.pause();
@@ -270,7 +256,7 @@ export default defineComponent({
         this.currentTime = this.audio?.currentTime;
 
         // Calculate current comment (comment where the current time marker should be displayed)
-        if (this.comments.length > 0){
+        if (this.comments.length > 0) {
           const firstComment = this.commentsSorted[0];
           if (this.currentTime <= firstComment.timeStart) {
             this.currentComment = firstComment;
@@ -311,9 +297,9 @@ export default defineComponent({
       }
     },
 
-    setBtnIcon(icon: string) { 
+    setBtnIcon(icon: string) {
       setIcon(this.button, icon);
-      setIcon(this.button1, icon); 
+      setIcon(this.button1, icon);
     },
 
     addComment() {
@@ -332,7 +318,7 @@ export default defineComponent({
       lines.splice(sectionInfo.lineStart + 2 + i, 1);
       window.app.vault.adapter.write(this.ctx.sourcePath, lines.join('\n'))
     },
-    getComments() : Array<AudioComment> {
+    getComments(): Array<AudioComment> {
       const cmtElems = Array.from(this.content?.children || []);
 
       // parse comments into timestamp/window and comment text
@@ -371,7 +357,7 @@ export default defineComponent({
       const allCmts = cmts.filter(Boolean) as Array<AudioComment>;
       // Calculate overlaps between comment time windows
       // (needed for rendering of wv highlights)
-      allCmts.sort((x: AudioComment, y:AudioComment) =>
+      allCmts.sort((x: AudioComment, y: AudioComment) =>
         x.timeStart - y.timeStart
       ).forEach((cmt: AudioComment, i: number) => {
         if (i == 0) return;
@@ -387,15 +373,15 @@ export default defineComponent({
     },
     barForTime(t: number) { return Math.floor(t / this.duration * this.nSamples); },
     barsForComment(cmt: AudioComment) { return range(...cmt.barEdges); },
-    commentsForBar(i: number) { 
+    commentsForBar(i: number) {
       const barTimeStart = i / this.nSamples * this.duration;
       const barTimeEnd = (i + 1) / this.nSamples * this.duration;
       return this.comments.filter((c: AudioComment) =>
-          hasOverlap([c.timeStart, c.timeEnd], [barTimeStart, barTimeEnd])
-        ).sort((x: AudioComment, y: AudioComment) => x.overlapScore - y.overlapScore);
+        hasOverlap([c.timeStart, c.timeEnd], [barTimeStart, barTimeEnd])
+      ).sort((x: AudioComment, y: AudioComment) => x.overlapScore - y.overlapScore);
     },
     commentForBar(i: number) {
-      const cmts = this.commentsForBar(i).sort((x: AudioComment, y:AudioComment) => x.timeStart - y.timeStart);
+      const cmts = this.commentsForBar(i).sort((x: AudioComment, y: AudioComment) => x.timeStart - y.timeStart);
       return cmts.length >= 1 ? cmts[cmts.length - 1] : null;
     },
     highlightComment(cmt: AudioComment) {
@@ -446,7 +432,7 @@ export default defineComponent({
       const prevCmts = this.commentsForBar(i - 1);
       if (!prevCmts || prevCmts.length == 0) return false;
       const areBarsAdjacent = this.startBars.includes(i) && this.endBars.includes(i - 1) &&
-        ! prevCmts.includes(cmt);
+        !prevCmts.includes(cmt);
       const isOverlapBegin = cmt.overlapScore > 0 && cmt.overlapScore > Math.max(...prevCmts.map((x: AudioComment) => x.overlapScore));
       return areBarsAdjacent || isOverlapBegin;
     },
@@ -454,25 +440,25 @@ export default defineComponent({
       if (i > this.filteredData.length - 1) return false;
       const nextCmts = this.commentsForBar(i + 1);
       if (!nextCmts || nextCmts.length == 0) return false;
-      const isOverlapEnd = cmt.overlapScore > 0 && cmt.overlapScore > nextCmts[nextCmts.length-1].overlapScore;
+      const isOverlapEnd = cmt.overlapScore > 0 && cmt.overlapScore > nextCmts[nextCmts.length - 1].overlapScore;
       return this.endBars.includes(i) && isOverlapEnd;
     },
-    
+
     copyTimestampToClipboard() {
       navigator.clipboard.writeText(this.displayedCurrentTime);
     },
     setCopyTimestampTooltip() {
       const elem = this.$refs.currentTime;
-      setTooltip(elem, "Copy timestamp", {'delay': 150});
+      setTooltip(elem, "Copy timestamp", { 'delay': 150 });
     },
     setWvTimestampTooltip(i: number) {
       const elem = this.$refs.wv[i];
       const time = i / this.nSamples * this.duration;
-      setTooltip(elem, secondsToString(time), {'delay': 150, 'placement': 'top'});
+      setTooltip(elem, secondsToString(time), { 'delay': 150, 'placement': 'top' });
     }
   },
 
-  created() { 
+  created() {
     this.loadFile();
   },
   mounted() {
@@ -483,8 +469,8 @@ export default defineComponent({
     setIcon(this.$refs.skipBackButton, 'skip-back');
 
     // add event listeners
-    document.addEventListener('allpause', () => {  
-      this.setBtnIcon('play'); 
+    document.addEventListener('allpause', () => {
+      this.setBtnIcon('play');
     });
     document.addEventListener('allresume', () => {
       if (this.isCurrent())
@@ -495,7 +481,7 @@ export default defineComponent({
         this.toggleLooping();
     })
     document.addEventListener('addcomment', () => {
-      if (this.isCurrent()) 
+      if (this.isCurrent())
         this.showCommentInput();
     })
     this.audio.addEventListener('ended', () => {
@@ -522,8 +508,8 @@ export default defineComponent({
     this.ro.observe(this.$el);
   },
   beforeUnmount() {
-		this.audio.removeEventListener("timeupdate", this.timeUpdateHandler);
-	},
+    this.audio.removeEventListener("timeupdate", this.timeUpdateHandler);
+  },
   beforeDestroy() {
     this.ro.unobserve(this.$el);
   }
