@@ -445,7 +445,7 @@ export default defineComponent({
     setIcon(this.$refs.loopButton, 'repeat');
     setIcon(this.$refs.skipBackButton, 'skip-back');
 
-    // add event listeners
+    // Add event listeners
     document.addEventListener('allpause', () => {
       this.setBtnIcon('play');
     });
@@ -466,14 +466,14 @@ export default defineComponent({
       console.log(this.$el.clientWidth);
     })
 
-    // get current time
+    // Get current time
     if (this.audio.src === this.srcPath) {
       this.currentTime = this.audio.currentTime
       this.audio.addEventListener('timeupdate', this.timeUpdateHandler);
       this.setBtnIcon(this.audio.paused ? 'play' : 'pause');
     }
 
-    // load comments
+    // Load comments
     setTimeout(() => { this.comments = this.getComments(); });
 
     this.ro = new ResizeObserver(this.onResize);
