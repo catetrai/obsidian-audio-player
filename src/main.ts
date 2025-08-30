@@ -128,6 +128,7 @@ export default class AudioPlayer extends Plugin {
 		// opened in the viewer and editor
 		this.registerExtensions(['lrc', 'srt', 'vtt'], 'markdown');
 
+		// Create audio player container from rendered HTML
 		this.registerMarkdownPostProcessor(
 			(
 				el: HTMLElement,
@@ -138,7 +139,7 @@ export default class AudioPlayer extends Plugin {
 			for (let callout of callouts) {
 				const calloutContent = callout.find('.callout-content');
 				
-				// parse file name
+				// Parse file name
 				const filename = calloutContent.find('p > a').getAttribute('href');
 				if (!filename) return;
 
@@ -158,12 +159,12 @@ export default class AudioPlayer extends Plugin {
 				if (!link || !allowedExtensions.includes(link.extension))
 					return;
 				
-				// parse title (if none, use file name)
+				// Parse title (if none, use file name)
 				let calloutTitle = callout.find('.callout-title').innerText;
 				if (!calloutTitle || calloutTitle == 'Music player')
 					calloutTitle = link.basename;
 
-				// parse moodbar image (must be embedded image link)
+				// Parse moodbar image (must be embedded image link)
 				const moodbar = calloutContent.find('p > span.internal-embed') || null;
 
 				// Parse optional internal link to a vault file from which comments
@@ -181,7 +182,7 @@ export default class AudioPlayer extends Plugin {
 					'p > a.internal-link[href$=".lrc" i]'
 				);
 
-				// create root $el
+				// Create root HTML element
 				const container = el.createDiv();
 				container.classList.add("base-container");
 
@@ -197,7 +198,7 @@ export default class AudioPlayer extends Plugin {
 						const func = externalFileExt == 'lrc' ? lrcToCommentList : srtToCommentList;
 						const commentsList = func(externalFileLink, s);
 						
-						//create vue app
+						// Create vue app
 						ctx.addChild(
 							new AudioPlayerRenderer(el, {
 								filepath: link.path,
