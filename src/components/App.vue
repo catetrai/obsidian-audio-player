@@ -483,9 +483,6 @@ export default defineComponent({
   },
   beforeUnmount() {
     this.audio.removeEventListener("timeupdate", this.timeUpdateHandler);
-    this.audio.removeEventListener("ended", this.audioEndedListener);
-    document.removeEventListener("allpause", this.allPauseListener);
-    document.removeEventListener("allresume", this.allResumeListener);
   },
   beforeDestroy() {
     this.ro.unobserve(this.$el);
