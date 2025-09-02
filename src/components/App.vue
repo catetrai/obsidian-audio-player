@@ -183,6 +183,9 @@ export default defineComponent({
     },
     toggleLooping() {
       this.looping = !this.looping;
+      if (!this.isCurrent()) {
+        this.audio.src = this.srcPath;
+      }
       this.audio.loop = this.looping;
     },
     togglePlay() {
@@ -216,6 +219,9 @@ export default defineComponent({
       document.dispatchEvent(ev);
     },
     skipToBeginning() {
+      if (!this.isCurrent()) {
+        this.audio.src = this.srcPath;
+      }
       this.audio.currentTime = 0;
     },
     timeUpdateHandler() {
