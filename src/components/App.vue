@@ -174,8 +174,9 @@ export default defineComponent({
     },
     setPlayheadSecs(time: any) {
       this.currentTime = time;
-      if (!this.isCurrent())
-        this.togglePlay();
+      if (!this.isCurrent()) {
+        this.audio.src = this.srcPath;
+      }
 
       if (this.isCurrent()) {
         this.audio.currentTime = time;
