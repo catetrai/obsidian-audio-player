@@ -177,6 +177,7 @@ export default class AudioPlayer extends Plugin {
 				const container = el.createDiv();
 				container.classList.add("base-container");
 
+				// If external subtitle file is linked, overwrite hardcoded comments
 				if ( externalFileLink ) {
 					// Read subtitle SRT/VTT file
 					const externalFilePath = externalFileLink.getAttr('href') || ''
@@ -188,7 +189,6 @@ export default class AudioPlayer extends Plugin {
 						const externalFileExt = externalFile?.extension.toLowerCase() || '';
 						const func = externalFileExt == 'lrc' ? lrcToCommentList : srtToCommentList;
 						const commentsList = func(externalFileLink, s);
-						
 						// Create vue app
 						ctx.addChild(
 							new AudioPlayerRenderer(el, {
@@ -199,16 +199,16 @@ export default class AudioPlayer extends Plugin {
 								ctx,
 								player,
 							})
-						)
-					});					
+						);
+					});
 				} else {
 					// Parse comments entered in the callout block
 					// in one of possible accepted formats:
-
+						
 					// 1. Plugin-specific format (unordered list)
 					let commentsList = calloutContent.find('ul');
 					
-					if ( ! commentsList ) {
+					if (!commentsList) {
 						const text = calloutContent.findAll('p')
 							.map((e) => e.innerText)
 							.join('\n\n');
@@ -221,7 +221,7 @@ export default class AudioPlayer extends Plugin {
 							commentsList = lrcToCommentList(calloutContent, text);
 						}
 					}
-
+					// Create vue app
 					ctx.addChild(
 						new AudioPlayerRenderer(el, {
 							filepath: link.path,
