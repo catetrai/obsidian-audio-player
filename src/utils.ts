@@ -120,3 +120,20 @@ export function parseSrt(srt: string): Array<Array<string>> {
     }
     return srtEntries;
 }
+
+export function parseTimestamp(timestamp: string): number {
+	const timestampPattern = /^(\d{1,2}:)?(\d{1,2}):(\d{2})$/;
+	// Split by colons and parse each part
+	const parts = timestamp.trim().split(':')
+		.map(part => parseFloat(part));
+	
+	let seconds = 0;
+	if (parts.length === 2) {
+		// MM:SS.000 format
+		seconds = parts[0] * 60 + parts[1];
+	} else if (parts.length === 3) {
+		// H:MM:SS.000 format
+		seconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
+	}
+	return seconds;
+}
