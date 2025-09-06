@@ -121,8 +121,14 @@ export function parseSrt(srt: string): Array<Array<string>> {
     return srtEntries;
 }
 
-export function parseTimestamp(timestamp: string): number {
+export function parseTimestamp(timestampStr: string): number {
+	// If if's a time window, grab the begin timestamp
+	const timestamp = timestampStr.split('-')[0].trim();
+
+	// Match by timestamp regex
 	const timestampPattern = /^(\d{1,2}:)?(\d{1,2}):(\d{2})$/;
+	if (!timestamp.match(timestampPattern)) return NaN;
+
 	// Split by colons and parse each part
 	const parts = timestamp.trim().split(':')
 		.map(part => parseFloat(part));
