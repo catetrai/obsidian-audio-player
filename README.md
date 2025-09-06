@@ -101,6 +101,8 @@ To link to a specific timestamp on an audio player, use an Obsidian [internal li
 [[My Page#^block-id|01:23.045]]
 ```
 
+Note that jumping to timestamp via link only works in View mode, not in live preview editing.
+
 ### Display moodbar
 
 The [Moodbar](https://en.wikipedia.org/wiki/Moodbar) is a great visual aid to find at a glance the different sections of a song, nicely complementing your manual annotations. [See here an example of how to generate a moodbar](https://www.hackitu.de/pymood/).
