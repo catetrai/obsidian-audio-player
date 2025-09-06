@@ -19,7 +19,7 @@ export default class AudioPlayer extends Plugin {
 
 		this.addCommand({
 			id: "pause-audio",
-			name: "Pause Audio",
+			name: "Pause audio",
 			callback: () => {
 				new Notice("Audio paused");
 				const ev = new Event("allpause");
@@ -30,7 +30,7 @@ export default class AudioPlayer extends Plugin {
 
 		this.addCommand({
 			id: "resume-audio",
-			name: "Resume Audio",
+			name: "Resume audio",
 			callback: () => {
 				new Notice("Audio resumed");
 				const ev = new Event("allresume");
@@ -41,7 +41,7 @@ export default class AudioPlayer extends Plugin {
 
 		this.addCommand({
 			id: "toggle-audio",
-			name: "Toggle Audio",
+			name: "Toggle play/pause",
 			callback: () => {
 				if (player.src && player.paused) {
 					const ev = new Event("allresume");
@@ -65,15 +65,6 @@ export default class AudioPlayer extends Plugin {
 		});
 
 		this.addCommand({
-			id: "add-audio-comment",
-			name: "Add bookmark",
-			callback: () => {
-				const ev = new Event("addcomment");
-				document.dispatchEvent(ev);
-			}
-		});
-		
-		this.addCommand({
 			id: "copy-timestamp",
 			name: "Copy current timestamp to clipboard",
 			callback: () => {
@@ -84,7 +75,7 @@ export default class AudioPlayer extends Plugin {
 		
 		this.addCommand({
 			id: "toggle-and-copy-timestamp",
-			name: "Play/pause and copy current timestamp",
+			name: "Toggle play/pause and copy current timestamp",
 			callback: () => {
 				if (player.src && player.paused) {
 					const ev = new Event("allresume");
@@ -102,7 +93,7 @@ export default class AudioPlayer extends Plugin {
 
 		this.addCommand({
 			id: "audio-forward-5s",
-			name: "+5 sec",
+			name: "Skip +5 sec",
 			callback: () => {
 				if (player.src) player.currentTime += 5;
 			}
@@ -110,7 +101,7 @@ export default class AudioPlayer extends Plugin {
 
 		this.addCommand({
 			id: "audio-back-5s",
-			name: "-5 sec",
+			name: "Skip -5 sec",
 			callback: () => {
 				if (player.src) player.currentTime -= 5;
 			}
@@ -128,17 +119,18 @@ export default class AudioPlayer extends Plugin {
 		// opened in the viewer and editor
 		this.registerExtensions(['lrc', 'srt', 'vtt'], 'markdown');
 
+		// Create audio player container from rendered HTML
 		this.registerMarkdownPostProcessor(
 			(
 				el: HTMLElement,
 				ctx: MarkdownPostProcessorContext
 			) => {
 			const callouts = el.findAll('.callout[data-callout="music-player"]');
-	  
-			for (let callout of callouts) {
+
+			for (const callout of callouts) {
 				const calloutContent = callout.find('.callout-content');
 				
-				// parse file name
+				// Parse file name
 				const filename = calloutContent.find('p > a').getAttribute('href');
 				if (!filename) return;
 
@@ -158,12 +150,12 @@ export default class AudioPlayer extends Plugin {
 				if (!link || !allowedExtensions.includes(link.extension))
 					return;
 				
-				// parse title (if none, use file name)
+				// Parse title (if none, use file name)
 				let calloutTitle = callout.find('.callout-title').innerText;
 				if (!calloutTitle || calloutTitle == 'Music player')
 					calloutTitle = link.basename;
 
-				// parse moodbar image (must be embedded image link)
+				// Parse moodbar image (must be embedded image link)
 				const moodbar = calloutContent.find('p > span.internal-embed') || null;
 
 				// Parse optional internal link to a vault file from which comments
@@ -181,10 +173,11 @@ export default class AudioPlayer extends Plugin {
 					'p > a.internal-link[href$=".lrc" i]'
 				);
 
-				// create root $el
+				// Create root HTML element
 				const container = el.createDiv();
 				container.classList.add("base-container");
 
+				// If external subtitle file is linked, overwrite hardcoded comments
 				if ( externalFileLink ) {
 					// Read subtitle SRT/VTT file
 					const externalFilePath = externalFileLink.getAttr('href') || ''
@@ -196,8 +189,7 @@ export default class AudioPlayer extends Plugin {
 						const externalFileExt = externalFile?.extension.toLowerCase() || '';
 						const func = externalFileExt == 'lrc' ? lrcToCommentList : srtToCommentList;
 						const commentsList = func(externalFileLink, s);
-						
-						//create vue app
+						// Create vue app
 						ctx.addChild(
 							new AudioPlayerRenderer(el, {
 								filepath: link.path,
@@ -207,16 +199,16 @@ export default class AudioPlayer extends Plugin {
 								ctx,
 								player,
 							})
-						)
-					});					
+						);
+					});
 				} else {
 					// Parse comments entered in the callout block
 					// in one of possible accepted formats:
-
+						
 					// 1. Plugin-specific format (unordered list)
 					let commentsList = calloutContent.find('ul');
 					
-					if ( ! commentsList ) {
+					if (!commentsList) {
 						const text = calloutContent.findAll('p')
 							.map((e) => e.innerText)
 							.join('\n\n');
@@ -229,7 +221,7 @@ export default class AudioPlayer extends Plugin {
 							commentsList = lrcToCommentList(calloutContent, text);
 						}
 					}
-
+					// Create vue app
 					ctx.addChild(
 						new AudioPlayerRenderer(el, {
 							filepath: link.path,

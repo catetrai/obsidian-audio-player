@@ -3,43 +3,33 @@
     <div class="player-title">{{ displayTitle }}</div>
     <div class="horiz">
       <div v-show="!smallSize" class="vert">
-        <div class="playpause seconds" @click="skipToBeginning" ref="skipBackButton"></div>
+        <div class="playpause playpause-controls" @click="skipToBeginning" ref="skipBackButton"></div>
         <div class="playpause" @click="togglePlay" ref="playpause"></div>
-        <div class="playpause seconds" @click="toggleLooping"
-          v-bind:class="{'looping': this.looping}"
-          ref="loopButton">
+        <div class="playpause playpause-controls" @click="toggleLooping" v-bind:class="{ 'looping': looping }" ref="loopButton">
         </div>
       </div>
       <div class="vert wide">
         <div class="waveform">
-          <div class="wv" ref="wv" v-for="(s, i) in filteredData" :key="srcPath+i"
-            v-bind:class="{
-              'played': i <= currentBar,
-              'commented': barsWithComments.includes(i),
-              'highlighted': highlightedBars.includes(i)
-            }"
-            @mouseover="setWvTimestampTooltip(i); highlightCommentForBar(i);"
-            @mouseout="unhighlightComment();"
-            @mousedown="barMouseDownHandler(i);"
-            :style="{
-              height: s * 50 + 'px'
-            }">
-            <div class="wv-shade" v-if="barsWithComments.includes(i)"
-              v-for="cmt in this.commentsForBar(i)"
-              v-bind:class="{
-                'begin': this.hasBeginSeparator(cmt, i),
-                'end': this.hasEndSeparator(cmt, i)
-              }"
-              :style="{
+          <div class="wv" ref="wv" v-for="(s, i) in filteredData" :key="srcPath + i" v-bind:class="{
+            'played': i <= currentBar,
+            'commented': barsWithComments.includes(i),
+            'highlighted': highlightedBars.includes(i)
+          }" @mouseover="setWvTimestampTooltip(i); highlightCommentForBar(i);" @mouseout="unhighlightComment();"
+              @mousedown="barMouseDownHandler(i);" :style="{ height: s * 50 + 'px' }">
+            <div class="wv-shade" v-if="barsWithComments.includes(i)" v-for="cmt in commentsForBar(i)" v-bind:class="{
+              'begin': hasBeginSeparator(cmt, i),
+              'end': hasEndSeparator(cmt, i)
+            }" :style="{
                 position: 'relative',
-                height: getBarHighlightHeight(s, i, cmt.overlapScore, this.commentsForBar(i)) + 'px',
-                'margin-top': getBarHighlightMarginTop(s, i, cmt.overlapScore, cmt, this.commentsForBar(i)) + 'px',
+                height: getBarHighlightHeight(s, cmt.rank, commentsForBar(i)) + 'px',
+                'margin-top': getBarHighlightMarginTop(s, cmt.rank, cmt, commentsForBar(i)) + 'px',
               }"></div>
           </div>
         </div>
         <div class="moodbar" v-html="displayedMoodbar"></div>
         <div class="timeline">
-          <span class="current-time" @mouseover="setCopyTimestampTooltip" @click="copyTimestampToClipboard" ref="currentTime">
+          <span class="current-time" @mouseover="setCopyTimestampTooltip" @click="copyTimestampToClipboard"
+            ref="currentTime">
             {{ displayedCurrentTime }}
           </span>
           <span class="duration">
@@ -48,32 +38,16 @@
         </div>
       </div>
     </div>
-    <div v-show="smallSize" class="horiz" :style="{'margin': 'auto'}">
-      <div class="playpause seconds" @click="setPlayheadSecs(currentTime-5)" ref="min5">
-        -5s
-      </div>
-      <div class="playpause play-button" @click="togglePlay" ref="playpause1">
-      </div>
-      <div class="playpause seconds" @click="setPlayheadSecs(currentTime+5)" ref="add5">
-        +5s
-      </div>
-    </div>
     <div class="comment-list">
-      <AudioCommentVue ref="audiocomment" v-for="cmt in commentsSorted"
-        v-bind:class="{
-          'active-comment': cmt == activeComment,
-          'current-comment': cmt == currentComment,
-          'highlighted-comment': cmt == highlightedComment
-        }"
-        @move-playhead="setPlayheadSecs" @remove="removeComment"
-        @mouseover="highlightBars(barsForComment(cmt))"
-        @mouseout="unhighlightBars()"
-        :cmt="cmt" :key="cmt.timeString"></AudioCommentVue>
-      <div class="comment"
-        v-if="commentsSorted.length > 0"
-        v-bind:class="{
-          'current-comment' : currentComment == null
-        }">
+      <AudioCommentVue ref="audiocomment" v-for="cmt in commentsSorted" v-bind:class="{
+        'active-comment': cmt == activeComment,
+        'current-comment': cmt == currentComment,
+        'highlighted-comment': cmt == highlightedComment
+      }" @move-playhead="setPlayheadSecs" @mouseover="highlightBars(barsForComment(cmt))"
+        @mouseout="unhighlightBars()" :cmt="cmt" :key="cmt.timeString"></AudioCommentVue>
+      <div class="comment" v-if="commentsSorted.length > 0" v-bind:class="{
+        'current-comment': currentComment == null
+      }">
       </div>
     </div>
   </div>
@@ -103,7 +77,6 @@ export default defineComponent({
   },
   data() {
     return {
-      toggle: false,
       items: [...Array(100).keys()],
       srcPath: '',
 
@@ -114,10 +87,7 @@ export default defineComponent({
       playing: false,
       looping: false,
       button: undefined as HTMLSpanElement | undefined,
-      button1: undefined as HTMLSpanElement | undefined,
 
-      clickCount: 0,
-      showInput: false,
       newComment: '',
       comments: [] as AudioComment[],
       activeComment: null as AudioComment | null,
@@ -138,13 +108,13 @@ export default defineComponent({
     startBars() { return this.commentsSorted.map((c: AudioComment) => c.barEdges[0]) },
     endBars() { return this.commentsSorted.map((c: AudioComment) => c.barEdges[1]) },
     barsWithComments() { return this.comments.map((c: AudioComment) => range(...c.barEdges)).flat().unique(); },
-    commentsSorted() { return this.comments.sort((x: AudioComment, y:AudioComment) => x.timeStart - y.timeStart); },
+    commentsSorted() { return this.comments.sort((x: AudioComment, y: AudioComment) => x.timeStart - y.timeStart); },
   },
   methods: {
     getSectionInfo() { return this.ctx.getSectionInfo(this.mdElement); },
     getParentWidth() { return this.mdElement.clientWidth },
     isCurrent() { return this.audio.src === this.srcPath; },
-    onResize() { 
+    onResize() {
       this.smallSize = this.$el.clientWidth < 300;
     },
     async loadFile() {
@@ -154,7 +124,7 @@ export default defineComponent({
       // process audio file & set audio el source
       if (file && file instanceof TFile) {
         //check cached values
-        if (!this.loadCache()) 
+        if (!this.loadCache())
           this.processAudio(file.path);
 
         this.srcPath = window.app.vault.getResourcePath(file);
@@ -169,11 +139,11 @@ export default defineComponent({
       let cachedDuration = localStorage[`${this.filepath}_duration`];
 
       if (!cachedData) { return false; }
-      
+
       this.filteredData = JSON.parse(cachedData);
       this.duration = Number.parseFloat(cachedDuration)
       return true;
-    },  
+    },
     async processAudio(path: string) {
       const arrBuf = await window.app.vault.adapter.readBinary(path);
       const audioContext = new AudioContext();
@@ -192,44 +162,31 @@ export default defineComponent({
           }
           tempArray.push(sum / blockSize);
         }
-        
+
         let maxval = Math.max(...tempArray);
         this.filteredData = tempArray.map(x => x / maxval);
         this.saveCache();
       })
     },
-    showCommentInput() {
-      this.showInput = true;
-      setTimeout(() => {
-        const input = this.$refs.commentInput as HTMLInputElement;
-        input.focus();
-      })
-    },
     barMouseDownHandler(i: number) {
-      this.clickCount += 1;
-      setTimeout(() => {
-        this.clickCount = 0;
-      }, 200);
-
-      if (this.clickCount >= 2) {
-        this.showCommentInput();
-      } else {
-        let time = i / this.nSamples * this.duration;
-        this.setPlayheadSecs(time);
-        
-      }
+      let time = i / this.nSamples * this.duration;
+      this.setPlayheadSecs(time);
     },
     setPlayheadSecs(time: any) {
       this.currentTime = time;
-      if (!this.isCurrent()) 
-          this.togglePlay();
+      if (!this.isCurrent()) {
+        this.audio.src = this.srcPath;
+      }
 
       if (this.isCurrent()) {
         this.audio.currentTime = time;
       }
     },
     toggleLooping() {
-      this.looping = ! this.looping;
+      this.looping = !this.looping;
+      if (!this.isCurrent()) {
+        this.audio.src = this.srcPath;
+      }
       this.audio.loop = this.looping;
     },
     togglePlay() {
@@ -242,7 +199,7 @@ export default defineComponent({
         this.play();
       } else {
         this.pause();
-      } 
+      }
     },
     play() {
       if (this.currentTime > 0) {
@@ -251,7 +208,7 @@ export default defineComponent({
       this.audio.addEventListener('timeupdate', this.timeUpdateHandler);
       this.audio?.play();
       this.playing = true;
-      this.setBtnIcon('pause');    
+      this.setBtnIcon('pause');
     },
     pause() {
       this.audio?.pause();
@@ -263,14 +220,18 @@ export default defineComponent({
       document.dispatchEvent(ev);
     },
     skipToBeginning() {
+      if (!this.isCurrent()) {
+        this.audio.src = this.srcPath;
+      }
       this.audio.currentTime = 0;
+      this.currentTime = this.audio.currentTime;
     },
     timeUpdateHandler() {
       if (this.isCurrent()) {
         this.currentTime = this.audio?.currentTime;
 
         // Calculate current comment (comment where the current time marker should be displayed)
-        if (this.comments.length > 0){
+        if (this.comments.length > 0) {
           const firstComment = this.commentsSorted[0];
           if (this.currentTime <= firstComment.timeStart) {
             this.currentComment = firstComment;
@@ -311,28 +272,9 @@ export default defineComponent({
       }
     },
 
-    setBtnIcon(icon: string) { 
-      setIcon(this.button, icon);
-      setIcon(this.button1, icon); 
-    },
+    setBtnIcon(icon: string) { setIcon(this.button, icon); },
 
-    addComment() {
-      if (this.newComment.length == 0)
-        return;
-      const sectionInfo = this.getSectionInfo();
-      const lines = sectionInfo.text.split('\n') as string[];
-      const timeStamp = secondsToString(this.currentTime);
-      lines.splice(sectionInfo.lineEnd, 0, `${timeStamp} --- ${this.newComment}`);
-
-      window.app.vault.adapter.write(this.ctx.sourcePath, lines.join('\n'))
-    },
-    removeComment(i: number) {
-      const sectionInfo = this.getSectionInfo();
-      const lines = sectionInfo.text.split('\n') as string[];
-      lines.splice(sectionInfo.lineStart + 2 + i, 1);
-      window.app.vault.adapter.write(this.ctx.sourcePath, lines.join('\n'))
-    },
-    getComments() : Array<AudioComment> {
+    getComments(): Array<AudioComment> {
       const cmtElems = Array.from(this.content?.children || []);
 
       // parse comments into timestamp/window and comment text
@@ -361,25 +303,36 @@ export default defineComponent({
               content: content,
               index: 0, // calculated at the end when sorting
               barEdges: bars,
-              overlapScore: 0, // calculated at the end
+              rank: 0, // calculated at the end
               looping: false  // do not loop by default
             }
             return cmt;
           }
         }
       });
+
+      // Calculate comment index and rank
       const allCmts = cmts.filter(Boolean) as Array<AudioComment>;
-      // Calculate overlaps between comment time windows
-      // (needed for rendering of wv highlights)
-      allCmts.sort((x: AudioComment, y:AudioComment) =>
+      // Calculate overlaps between comment time windows.
+      // Each comment gets a 'rank', which is used to calculate the
+      // height of the comment's highlight on each waveform bin.
+      // Rank 0 comments do not have any temporally overlapping
+      // previous comments, so their waveform highlight bars will be
+      // positioned at the topmost height.
+      allCmts.sort((x: AudioComment, y: AudioComment) =>
         x.timeStart - y.timeStart
       ).forEach((cmt: AudioComment, i: number) => {
+        // First comment has rank 0, because it cannot overlap with
+        // any preceding comment by definition
         if (i == 0) return;
         cmt.index = i;
-        const overlaps = allCmts.slice(0, i).filter(c => hasOverlap(c.barEdges, cmt.barEdges));
+        const overlaps = allCmts.slice(0, i)
+          .filter(c => hasOverlap(c.barEdges, cmt.barEdges));
         if (overlaps.length > 0) {
-          while (overlaps.filter(c => c.overlapScore == cmt.overlapScore).length != 0) {
-            cmt.overlapScore += 1;
+          while (overlaps.filter(c => c.rank == cmt.rank).length != 0) {
+            // Increase rank after each successive overlap with a
+            // previous comment
+            cmt.rank += 1;
           }
         }
       });
@@ -387,104 +340,122 @@ export default defineComponent({
     },
     barForTime(t: number) { return Math.floor(t / this.duration * this.nSamples); },
     barsForComment(cmt: AudioComment) { return range(...cmt.barEdges); },
-    commentsForBar(i: number) { 
+    commentsForBar(i: number) {
       const barTimeStart = i / this.nSamples * this.duration;
       const barTimeEnd = (i + 1) / this.nSamples * this.duration;
       return this.comments.filter((c: AudioComment) =>
-          hasOverlap([c.timeStart, c.timeEnd], [barTimeStart, barTimeEnd])
-        ).sort((x: AudioComment, y: AudioComment) => x.overlapScore - y.overlapScore);
+        hasOverlap([c.timeStart, c.timeEnd], [barTimeStart, barTimeEnd])
+      ).sort((x: AudioComment, y: AudioComment) => x.rank - y.rank);
     },
     commentForBar(i: number) {
-      const cmts = this.commentsForBar(i).sort((x: AudioComment, y:AudioComment) => x.timeStart - y.timeStart);
+      const cmts = this.commentsForBar(i).sort(
+        (x: AudioComment, y: AudioComment) => x.timeStart - y.timeStart
+      );
       return cmts.length >= 1 ? cmts[cmts.length - 1] : null;
     },
     highlightComment(cmt: AudioComment) {
       this.highlightedComment = cmt;
       const commentEl = this.$refs.audiocomment[cmt.index].$el;
-      commentEl.scrollIntoView({ block: 'nearest', inline: 'start', behavior: 'smooth' });
+      commentEl.scrollIntoView(
+        { block: 'nearest', inline: 'start', behavior: 'smooth' }
+      );
     },
     highlightCommentForBar(i: number) {
       const cmt = this.commentForBar(i);
-      if (cmt) {
-        this.highlightComment(cmt);
-      } else {
-        this.highlightedComment = null;
-      }
+      cmt ? this.highlightComment(cmt) : this.highlightedComment = null;
     },
-    unhighlightComment() {
-      this.highlightedComment = null;
-    },
+    unhighlightComment() { this.highlightedComment = null; },
 
     highlightBars(ixs: number[]) { this.highlightedBars = ixs; },
     unhighlightBars() { this.highlightedBars = []; },
 
-    getBarHighlightHeight(s: number, i: number, rank: number, cmts: Array<AudioComment>) {
-      const maxRank = Math.max(...cmts.map(x => x.overlapScore));
-      const maxRankGlobal = Math.max(...this.comments.map((x: AudioComment) => x.overlapScore));
+    getBarHighlightHeight(s: number, rank: number, cmts: Array<AudioComment>) {
+      // A bunch of magic numbers to get reasonable-looking
+      // px values for CSS 'height' property
+      const maxRank = Math.max(...cmts.map(x => x.rank));
+      const maxRankGlobal = Math.max(
+        ...this.comments.map((x: AudioComment) => x.rank)
+      );
       const val = (Math.max(...this.filteredData) - s)
       const scaling = 50;
       const rankScaling = 3;
       const padding = 7 + rankScaling * maxRankGlobal;
       if (rank < maxRank) {
-        const nextRank = cmts.filter(x => x.overlapScore > rank)[0].overlapScore;
+        const nextRank = cmts.filter(x => x.rank > rank)[0].rank;
         return rankScaling * (nextRank - rank);
       }
       return val * scaling + padding - rankScaling * rank;
     },
-    getBarHighlightMarginTop(s: number, i: number, rank: number, cmt: AudioComment, cmts: Array<AudioComment>) {
-      const height = this.getBarHighlightHeight(s, i, rank, cmts);
-      const allRanks = cmts.map(x => x.overlapScore);
-      if (rank == 0 && cmts.length == 1 || rank > cmts.indexOf(cmt) && rank != Math.max(...allRanks))
+    getBarHighlightMarginTop(
+      s: number, rank: number, cmt: AudioComment, cmts: Array<AudioComment>
+    ) {
+      // Arcane incantation to calculate CSS 'margin-top' property
+      const height = this.getBarHighlightHeight(s, rank, cmts);
+      const allRanks = cmts.map(x => x.rank);
+      if (
+        rank == 0 && cmts.length == 1
+        || rank > cmts.indexOf(cmt) && rank != Math.max(...allRanks)
+      )
         return -height;
       if (rank == Math.min(...allRanks))
-        return -this.getBarHighlightHeight(s, i, rank, cmts.slice(0, -rank));
+        return -this.getBarHighlightHeight(s, rank, cmts.slice(0, -rank));
       return 0;
     },
 
     hasBeginSeparator(cmt: AudioComment, i: number) {
-      if (i == 0) return false;
-      const prevCmts = this.commentsForBar(i - 1);
-      if (!prevCmts || prevCmts.length == 0) return false;
-      const areBarsAdjacent = this.startBars.includes(i) && this.endBars.includes(i - 1) &&
-        ! prevCmts.includes(cmt);
-      const isOverlapBegin = cmt.overlapScore > 0 && cmt.overlapScore > Math.max(...prevCmts.map((x: AudioComment) => x.overlapScore));
+      // Whether the first waveform bin of the comment's time window
+      // should be visually separated (because of overlap with the
+      // previous comment
+      if (i == 0) return false;  // first bin/bar has no overlap
+      const cmtsPrevBar = this.commentsForBar(i - 1);
+      if (!cmtsPrevBar || cmtsPrevBar.length == 0) return false;
+      const areBarsAdjacent = this.startBars.includes(i)
+        && this.endBars.includes(i - 1)
+        && ! cmtsPrevBar.includes(cmt);
+      const maxRankPrevBar = Math.max(...cmtsPrevBar.map((x: AudioComment) => x.rank));
+      const isOverlapBegin = cmt.rank > 0 && cmt.rank > maxRankPrevBar;
       return areBarsAdjacent || isOverlapBegin;
     },
     hasEndSeparator(cmt: AudioComment, i: number) {
+      // Whether the last waveform bin of the comment's time window
+      // should be visually separated (because of overlap with the
+      // next comment)
       if (i > this.filteredData.length - 1) return false;
-      const nextCmts = this.commentsForBar(i + 1);
-      if (!nextCmts || nextCmts.length == 0) return false;
-      const isOverlapEnd = cmt.overlapScore > 0 && cmt.overlapScore > nextCmts[nextCmts.length-1].overlapScore;
+      const cmtsNextBar = this.commentsForBar(i + 1);
+      if (!cmtsNextBar || cmtsNextBar.length == 0) return false;
+      const isOverlapEnd = cmt.rank > 0
+        && cmt.rank > cmtsNextBar[cmtsNextBar.length - 1].rank;
       return this.endBars.includes(i) && isOverlapEnd;
     },
-    
+
     copyTimestampToClipboard() {
       navigator.clipboard.writeText(this.displayedCurrentTime);
     },
     setCopyTimestampTooltip() {
       const elem = this.$refs.currentTime;
-      setTooltip(elem, "Copy timestamp", {'delay': 150});
+      setTooltip(elem, "Copy timestamp", { 'delay': 150 });
     },
     setWvTimestampTooltip(i: number) {
       const elem = this.$refs.wv[i];
       const time = i / this.nSamples * this.duration;
-      setTooltip(elem, secondsToString(time), {'delay': 150, 'placement': 'top'});
+      setTooltip(elem, secondsToString(time), {
+        'delay': 150, 'placement': 'top'
+      });
     }
   },
 
-  created() { 
+  created() {
     this.loadFile();
   },
   mounted() {
     this.button = this.$refs.playpause as HTMLSpanElement;
-    this.button1 = this.$refs.playpause1 as HTMLSpanElement;
     this.setBtnIcon('play');
     setIcon(this.$refs.loopButton, 'repeat');
     setIcon(this.$refs.skipBackButton, 'skip-back');
 
-    // add event listeners
-    document.addEventListener('allpause', () => {  
-      this.setBtnIcon('play'); 
+    // Add event listeners
+    document.addEventListener('allpause', () => {
+      this.setBtnIcon('play');
     });
     document.addEventListener('allresume', () => {
       if (this.isCurrent())
@@ -493,10 +464,6 @@ export default defineComponent({
     document.addEventListener('looptoggle', () => {
       if (this.isCurrent())
         this.toggleLooping();
-    })
-    document.addEventListener('addcomment', () => {
-      if (this.isCurrent()) 
-        this.showCommentInput();
     })
     this.audio.addEventListener('ended', () => {
       if (this.audio.src === this.srcPath)
@@ -507,23 +474,24 @@ export default defineComponent({
       console.log(this.$el.clientWidth);
     })
 
-    // get current time
+    // Get current time
     if (this.audio.src === this.srcPath) {
       this.currentTime = this.audio.currentTime
       this.audio.addEventListener('timeupdate', this.timeUpdateHandler);
       this.setBtnIcon(this.audio.paused ? 'play' : 'pause');
+      // Get current looping state
+      this.looping = this.audio.loop;
     }
 
-    // load comments
+    // Load comments
     setTimeout(() => { this.comments = this.getComments(); });
-
 
     this.ro = new ResizeObserver(this.onResize);
     this.ro.observe(this.$el);
   },
   beforeUnmount() {
-		this.audio.removeEventListener("timeupdate", this.timeUpdateHandler);
-	},
+    this.audio.removeEventListener("timeupdate", this.timeUpdateHandler);
+  },
   beforeDestroy() {
     this.ro.unobserve(this.$el);
   }

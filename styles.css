@@ -7,8 +7,8 @@ If your plugin does not need CSS, delete this file.
 
 */
 .callout[data-callout="music-player"] {
-    --callout-color: 191, 168, 255;
-    --callout-icon: audio-lines;
+	--callout-color: 191, 168, 255;
+	--callout-icon: audio-lines;
 }
 
 .audio-player-container {
@@ -30,15 +30,12 @@ If your plugin does not need CSS, delete this file.
 	cursor: default;
 	flex-direction: column;
 }
-.my-audio {
-	display: none;
-}
 
 .player-title {
 	margin-left: 5px;
 	margin-bottom: 10px;
 	--font-weight: var(--callout-title-weight);
-    font-weight: var(--font-weight);
+	font-weight: var(--font-weight);
 }
 
 .waveform {
@@ -57,34 +54,46 @@ If your plugin does not need CSS, delete this file.
 	transition: all 0.2s;
 	cursor: pointer;
 }
-.wv:hover, .wv.played:hover, .wv.commented:hover, .wv.played.commented:hover {
+
+.wv:hover,
+.wv.played:hover,
+.wv.commented:hover,
+.wv.played.commented:hover {
 	background-color: var(--color-base-100);
 }
+
 .wv:active {
 	background-color: var(--color-base-10);
 }
+
 .wv.played {
 	background-color: var(--color-accent-1);
 }
+
 .wv.played.commented {
 	background-color: var(--color-accent-2);
 }
+
 .wv.commented {
 	background-color: #888888;
 }
-.wv.highlighted, .wv.played.highlighted {
+
+.wv.highlighted,
+.wv.played.highlighted {
 	background-color: var(--color-base-100);
 }
+
 .wv-shade {
 	margin-left: -1px;
 	background-color: var(--color-base-35);
 	border-top: #c5b6fc solid 1px;
 }
+
 .wv-shade.begin {
 	margin-left: 0px;
 }
+
 .wv-shade.end {
-	/* border-right: inherit; */
 	margin-right: 1px;
 }
 
@@ -104,17 +113,21 @@ If your plugin does not need CSS, delete this file.
 	transition: all 0.15s;
 	cursor: pointer;
 }
+
 .playpause:hover {
 	opacity: 1;
 }
+
 .playpause:active {
 	background-color: var(--color-base-10);
 }
+
 .playpause.looping {
 	opacity: 1;
 	color: var(--color-accent-1);
 }
-.seconds {
+
+.playpause-controls {
 	border-radius: 2;
 	min-height: unset;
 	padding-top: 0;
@@ -123,14 +136,17 @@ If your plugin does not need CSS, delete this file.
 	flex: unset;
 	background: none;
 }
+
 .vert {
 	display: flex;
 	flex-direction: column;
 }
+
 .vert:first-of-type {
 	margin-right: 6px;
 	margin-top: -5px;
 }
+
 .horiz {
 	display: flex;
 }
@@ -142,15 +158,16 @@ If your plugin does not need CSS, delete this file.
 	color: var(--color-base-50);
 	font-size: 0.9rem;
 }
+
 .wide {
 	width: 100%;
 }
 
-.timeline > .current-time {
+.timeline>.current-time {
 	cursor: pointer;
 }
 
-.timeline > .current-time:hover {
+.timeline>.current-time:hover {
 	color: var(--text-normal);
 }
 
@@ -158,10 +175,11 @@ If your plugin does not need CSS, delete this file.
 	margin-top: 10px;
 	overflow-y: auto;
 }
+
 .comment {
 	margin-left: 5px;
-    margin-bottom: 0.5em;
-    margin-top: 0.5em;
+	margin-bottom: 0.5em;
+	margin-top: 0.5em;
 	min-height: 20px;
 	transition: all 0.2s;
 	display: grid;
@@ -174,54 +192,44 @@ If your plugin does not need CSS, delete this file.
 .comment:hover {
 	background-color: #ffffff10;
 }
+
 .comment:last-child:hover {
 	background: none;
 	cursor: auto;
 }
+
 .comment:active {
 	background-color: var(--color-base-10);
 }
-.comment > span:hover {
+
+.comment>span:hover {
 	cursor: pointer;
 }
 
-.comment > .timestamp,
-.comment > .delete-comment {
+.comment>.timestamp {
 	color: var(--color-base-50);
 	font-size: 0.9rem;
 	margin-top: 2px;
 }
 
-.delete-comment {
-	width: 20px;
-	height: 22px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: all 0.2s;
-}
-.delete-comment:hover {
-	background-color: var(--color-red);
-	color: var(--white);
-}
-.delete-comment:active {
-	background-color: var(--color-base-10);
-}
-
-.comment > .loopcmt{
+.comment>.loopcmt {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 }
-.comment > span ~ .loopcmt{
+
+.comment>span~.loopcmt {
 	opacity: 0;
 }
-.comment:hover > .loopcmt{
+
+.comment:hover>.loopcmt {
 	opacity: 0.7;
 }
-.comment > .loopcmt:hover{
+
+.comment>.loopcmt:hover {
 	opacity: 1;
 }
+
 .loopcmt.looping {
 	color: var(--color-accent-1);
 }
@@ -231,15 +239,19 @@ If your plugin does not need CSS, delete this file.
 	gap: 6px;
 	margin-top: 4px;
 }
-.comment > .content {
+
+.comment>.content {
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
-.comment > .timestamp:hover {
+
+.comment>.timestamp:hover {
 	color: var(--white);
 }
 
-.active-comment, .active-comment:hover, .active-comment.highlighted-comment {
+.active-comment,
+.active-comment:hover,
+.active-comment.highlighted-comment {
 	background-color: var(--background-modifier-active-hover);
 }
 
@@ -250,6 +262,8 @@ If your plugin does not need CSS, delete this file.
 .current-comment {
 	border-top: 1px solid var(--color-accent-2);
 }
-.active-comment + .current-comment, .current-comment.active-comment {
+
+.active-comment+.current-comment,
+.current-comment.active-comment {
 	border-top: 1px solid transparent;
 }

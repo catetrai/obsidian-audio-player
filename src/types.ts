@@ -7,7 +7,7 @@ export type AudioComment = {
 	timeString: string;
 	index: number;
 	barEdges: [number, number];
-	overlapScore: number;
+	rank: number;
 	looping: boolean;
 };
 
