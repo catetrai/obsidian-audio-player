@@ -223,6 +223,7 @@ export default defineComponent({
         this.audio.src = this.srcPath;
       }
       this.audio.currentTime = 0;
+      this.currentTime = this.audio.currentTime;
     },
     timeUpdateHandler() {
       if (this.isCurrent()) {
