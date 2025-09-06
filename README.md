@@ -93,6 +93,14 @@ Example:
 
 If a file link is provided as comments source, any comments entered in the callout block will be ignored.
 
+### Link to player timestamp
+
+To link to a specific timestamp on an audio player, use an Obsidian [internal link to the callout block](https://help.obsidian.md/links#Link+to+a+block+in+a+note) with the timestamp as link display text:
+
+```markdown
+[[My Page#^block-id|01:23.045]]
+```
+
 ### Display moodbar
 
 The [Moodbar](https://en.wikipedia.org/wiki/Moodbar) is a great visual aid to find at a glance the different sections of a song, nicely complementing your manual annotations. [See here an example of how to generate a moodbar](https://www.hackitu.de/pymood/).
@@ -135,7 +143,3 @@ If you want to play around with the source code (assuming you have a development
 5. Go to Settings -> Community Plugins
 6. Scroll down, find "Music Player" plugin and enable it
 7. Quit and reopen Obsidian
-
-## Known issues
-
-- It is not (yet?) possible to link to individual timestamps/comments on an audio player. This is due to a limitation in Obsidian, whereby internal links may reference a block or a list item, but not a list item inside a block. See discussion on the Obsidian forum: [Internal link to a bullet point in callout](https://forum.obsidian.md/t/internal-link-to-a-bullet-point-in-callout/47698)
