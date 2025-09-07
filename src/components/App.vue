@@ -469,6 +469,19 @@ export default defineComponent({
       if (this.audio.src === this.srcPath)
         this.setBtnIcon('play');
     });
+    this.$el.addEventListener('seek-to-timestamp', (event: CustomEvent) => {
+      if (this.getSectionInfo()) {
+        const { lineStart, lineEnd, timeInSeconds } = event.detail;
+        if (
+          timeInSeconds && timeInSeconds <= this.duration &&
+          (lineStart == null && lineEnd == null ||
+          lineStart == this.getSectionInfo().lineStart && lineEnd == this.getSectionInfo().lineEnd)
+        ) {
+          this.setPlayheadSecs(timeInSeconds);
+          localStorage.removeItem('musicPlayerSeek');
+        }
+      }
+    });
 
     this.$el.addEventListener('resize', () => {
       console.log(this.$el.clientWidth);
@@ -485,6 +498,22 @@ export default defineComponent({
 
     // Load comments
     setTimeout(() => { this.comments = this.getComments(); });
+
+    // Seek to timestamp based on cookie set after clicking a
+    // timestamp link (as alternative to handling seek event)
+    const seekToSeconds = localStorage.getItem('musicPlayerSeek');
+    if (seekToSeconds && this.getSectionInfo()) {
+      const [ lineStart, lineEnd, secondsStr ] = seekToSeconds.split(':');
+      const seconds = parseFloat(secondsStr);
+      if (
+        seconds && seconds <= this.duration &&
+        (lineStart == '' && lineEnd == '' ||
+        lineStart == this.getSectionInfo().lineStart && lineEnd == this.getSectionInfo().lineEnd)
+      ) {
+        this.setPlayheadSecs(seconds);
+        localStorage.removeItem('musicPlayerSeek');
+      }
+    }
 
     this.ro = new ResizeObserver(this.onResize);
     this.ro.observe(this.$el);

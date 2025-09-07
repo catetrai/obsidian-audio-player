@@ -3,11 +3,19 @@ import {
 	MarkdownPostProcessorContext,
 	Notice,
 	Plugin,
+	resolveSubpath,
 	TFile,
 } from "obsidian";
 
 import { AudioPlayerRenderer } from "./audioPlayerRenderer";
-import { lrcToCommentList, parseLrc, parseSrt, secondsToString, srtToCommentList } from "./utils";
+import {
+	lrcToCommentList,
+	parseLrc,
+	parseSrt,
+	parseTimestamp,
+	secondsToString,
+	srtToCommentList
+} from "./utils";
 
 
 export default class AudioPlayer extends Plugin {
@@ -118,6 +126,20 @@ export default class AudioPlayer extends Plugin {
 		// Treat subtitle/lyrics files as Markdown files that can be
 		// opened in the viewer and editor
 		this.registerExtensions(['lrc', 'srt', 'vtt'], 'markdown');
+
+		// Register global handlers for timestamp links click and hover
+		this.registerDomEvent(document, 'click', (event: MouseEvent) => {
+			this.handleTimestampClick(event);
+		});
+		this.registerDomEvent(document, 'mouseover', (event: MouseEvent) => {
+			this.handleTimestampMouseover(event);
+		});
+		this.registerDomEvent(document, 'mouseout', (event: MouseEvent) => {
+			// Delete the cookie immediately on mouseout, to minimize
+			// likelihood that it will be ingested by a player different
+			// from the hover target
+			localStorage.removeItem('musicPlayerSeek');
+		});
 
 		// Create audio player container from rendered HTML
 		this.registerMarkdownPostProcessor(
@@ -235,5 +257,95 @@ export default class AudioPlayer extends Plugin {
 				}
 			}
 		});
+	}
+
+	private handleTimestampClick(event: MouseEvent) {
+		const target = event.target as HTMLElement;
+		if (!target) return;
+
+		// Check if clicked element is a link
+		const link = target.closest('a[href]')
+			|| (target.tagName === 'A' ? target : null) as HTMLAnchorElement;
+		if (!link) return;
+
+		// Get the link text and check if it matches a timestamp pattern
+		const linkText = link.textContent || '';
+		const timeInSeconds = parseTimestamp(linkText);
+		const linkTarget = link.getAttr('data-href');
+
+		if (timeInSeconds) {
+			event.preventDefault();
+			event.stopPropagation();
+			
+			if (linkTarget) {
+				const [ linkedPage, linkedSubpath ] = linkTarget.split('#');
+				const currentFile = this.app.workspace.getActiveFile();
+				const currentPage = currentFile?.path;
+				const targetPage = this.app.metadataCache.getFirstLinkpathDest(linkedPage, currentPage || '');
+				if ( currentPage && targetPage ) {
+					const cache = this.app.metadataCache.getFileCache(targetPage);
+					if (cache) {
+						const resolvedBlock = resolveSubpath(cache, linkedSubpath);
+						
+						if (resolvedBlock && resolvedBlock.type == 'block') {
+							// Start and end line of Markdown block
+							const lineStart = resolvedBlock.block.position.start.line;
+							const lineEnd = resolvedBlock.block.position.end.line;
+
+							// If link is on same page as player (therefore, component is
+							// already loaded), dispatch custom event on player HTMLElement
+							if ( targetPage == currentFile ) {
+							// if (linkedPage == '') {
+								const audioPlayerElements = document
+									.querySelectorAll('.audio-player-ui') as NodeListOf<HTMLElement>;
+								audioPlayerElements.forEach((e) => {
+									const seekEvent = new CustomEvent('seek-to-timestamp', {
+										detail: { lineStart, lineEnd, timeInSeconds },
+										bubbles: true
+									});
+									e.dispatchEvent(seekEvent);
+								});
+							} else {
+								// Store seek time as cookie to be ingested by players
+								// on other pages (not in DOM of current document)
+								localStorage.setItem(
+									'musicPlayerSeek',
+									`${lineStart}:${lineEnd}:${timeInSeconds}`
+								);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private handleTimestampMouseover(event: MouseEvent) {
+		const target = event.target as HTMLElement;
+		if (!target) return;
+
+		// Check if hovered element is a link
+		const link = target.closest('a[href]')
+			|| (target.tagName === 'A' ? target : null) as HTMLAnchorElement;
+		if (!link) return;
+
+		// Get the link text and check if it matches a timestamp pattern
+		const linkText = link.textContent || '';
+		const timeInSeconds = parseTimestamp(linkText);
+		if (timeInSeconds) {
+			event.preventDefault();
+			event.stopPropagation();
+			
+			// Store seek time as cookie to be accessed by the player
+			// rendered in popup preview when hovering on the link.
+			// Since the popup contains only the single linked player,
+			// we do not need to select a specific block, so we leave
+			// `lineStart` and `lineEnd` empty.
+			const [ lineStart, lineEnd ] = ['', ''];
+			localStorage.setItem(
+				'musicPlayerSeek',
+				`${lineStart}:${lineEnd}:${timeInSeconds}`
+			);
+		}
 	}
 }
