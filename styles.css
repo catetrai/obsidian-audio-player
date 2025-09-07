@@ -165,6 +165,7 @@ If your plugin does not need CSS, delete this file.
 
 .timeline>.current-time {
 	cursor: pointer;
+	font-family: var(--font-monospace);
 }
 
 .timeline>.current-time:hover {
@@ -208,8 +209,9 @@ If your plugin does not need CSS, delete this file.
 
 .comment>.timestamp {
 	color: var(--color-base-50);
-	font-size: 0.9rem;
+	font-size: 0.8rem;
 	margin-top: 2px;
+	font-family: var(--font-monospace);
 }
 
 .comment>.loopcmt {
